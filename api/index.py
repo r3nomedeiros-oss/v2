@@ -4,6 +4,9 @@ import os
 from datetime import datetime, date, time
 import uuid
 from supabase import create_client
+import bcrypt
+import jwt
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)

@@ -1,5 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException
+from mangum import Mangum
 import os
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List
@@ -27,6 +27,7 @@ class StatusCheckCreate(BaseModel):
     client_name: str
 
 # Routes
+@app.get("/")
 @app.get("/api")
 @app.get("/api/")
 async def root():
@@ -67,13 +68,5 @@ async def get_status_checks():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Handler para Vercel
-handler = app
+handler = Mangum(app)

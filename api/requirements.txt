@@ -3,3 +3,5 @@ flask-cors
 supabase==2.27.3
 reportlab
 openpyxl
+bcrypt
+pyjwt

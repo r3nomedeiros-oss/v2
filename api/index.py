@@ -10,6 +10,7 @@ from functools import wraps
 
 app = Flask(__name__)
 CORS(app)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chave-secreta-producao-sacolas-2026')
 
 # Supabase
 supabase_url = os.environ.get('SUPABASE_URL', 'https://qmhldxyagakxeywkszkq.supabase.co')

@@ -237,6 +237,85 @@ def gerar_relatorio():
         print(f"Erro ao gerar relatório: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+# ==================== AUTENTICAÇÃO E USUÁRIOS ====================
+
+@app.route('/api/auth/register', methods=['POST'])
+def registrar_usuario():
+    try:
+        data = request.get_json()
+        
+        # Verificar se email já existe
+        existing = supabase.table("users").select("*").eq("email", data['email']).execute()
+        if existing.data:
+            return jsonify({"error": "Email já cadastrado"}), 400
+        
+        # Hash da senha
+        senha_hash = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        user = {
+            "id": str(uuid.uuid4()),
+            "nome": data['nome'],
+            "email": data['email'],
+            "senha": senha_hash,
+            "tipo": data['tipo']
+        }
+        
+        supabase.table("users").insert(user).execute()
+        
+        # Retornar sem senha
+        del user['senha']
+        return jsonify({"success": True, "user": user}), 201
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        
+        # Buscar usuário
+        response = supabase.table("users").select("*").eq("email", data['email']).execute()
+        if not response.data:
+            return jsonify({"error": "Email ou senha incorretos"}), 401
+        
+        user = response.data[0]
+        
+        # Verificar senha
+        if not bcrypt.checkpw(data['senha'].encode('utf-8'), user['senha'].encode('utf-8')):
+            return jsonify({"error": "Email ou senha incorretos"}), 401
+        
+        # Gerar token JWT
+        token = jwt.encode({
+            'user_id': user['id'],
+            'email': user['email'],
+            'tipo': user['tipo']
+        }, app.config['SECRET_KEY'], algorithm='HS256')
+        
+        # Retornar sem senha
+        del user['senha']
+        
+        return jsonify({"success": True, "token": token, "user": user})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users', methods=['GET'])
+def listar_usuarios():
+    try:
+        response = supabase.table("users").select("id, nome, email, tipo, created_at").execute()
+        return jsonify(response.data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/users/<user_id>', methods=['DELETE'])
+def deletar_usuario(user_id):
+    try:
+        supabase.table("users").delete().eq("id", user_id).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Handler para Vercel
 if __name__ == '__main__':
     app.run(debug=True)

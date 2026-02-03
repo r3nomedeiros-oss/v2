@@ -88,6 +88,40 @@ function Dashboard() {
       </div>
 
       <div className="card">
+        <h2 style={{marginBottom: '20px'}}>Produção x Perdas (Últimos 10 Lançamentos)</h2>
+        
+        {lancamentos.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={prepararDadosGrafico()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="data" />
+              <YAxis label={{ value: 'kg', angle: -90, position: 'insideLeft' }} />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="producao" 
+                stroke="#1e40af" 
+                strokeWidth={2}
+                name="Produção (kg)" 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="perdas" 
+                stroke="#f56565" 
+                strokeWidth={2}
+                name="Perdas (kg)" 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="empty-state">
+            <p>Sem dados para exibir no gráfico</p>
+          </div>
+        )}
+      </div>
+
+      <div className="card">
         <h2 style={{marginBottom: '20px'}}>Produção por Turno</h2>
         
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px'}}>

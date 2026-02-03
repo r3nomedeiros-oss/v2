@@ -13,6 +13,7 @@ function Relatorios() {
 
   useEffect(() => {
     gerarRelatorio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periodo]);
 
   const gerarRelatorio = async () => {

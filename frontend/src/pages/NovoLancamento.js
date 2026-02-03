@@ -20,6 +20,17 @@ function NovoLancamento() {
     ]
   });
 
+  // Atualizar hora automaticamente a cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLancamento(prev => ({
+        ...prev,
+        hora: new Date().toTimeString().split(' ')[0].substring(0, 5)
+      }));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const adicionarItem = () => {
     setLancamento({
       ...lancamento,

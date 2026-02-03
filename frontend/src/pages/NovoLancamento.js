@@ -103,13 +103,13 @@ function NovoLancamento() {
             </div>
 
             <div className="form-group">
-              <label>Hora</label>
+              <label>Hora (automática)</label>
               <input
-                type="time"
+                type="text"
                 className="form-control"
                 value={lancamento.hora}
-                onChange={(e) => setLancamento({...lancamento, hora: e.target.value})}
-                required
+                disabled
+                style={{background: '#f7fafc', cursor: 'not-allowed'}}
               />
             </div>
           </div>

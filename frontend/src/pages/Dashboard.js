@@ -7,6 +7,7 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
+  const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,13 +16,26 @@ function Dashboard() {
 
   const carregarDashboard = async () => {
     try {
-      const response = await axios.get(`${API_URL}/relatorios?periodo=mensal`);
-      setStats(response.data);
+      const [statsResponse, lancamentosResponse] = await Promise.all([
+        axios.get(`${API_URL}/relatorios?periodo=mensal`),
+        axios.get(`${API_URL}/lancamentos`)
+      ]);
+      setStats(statsResponse.data);
+      setLancamentos(lancamentosResponse.data.slice(0, 10)); // Últimos 10
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const prepararDadosGrafico = () => {
+    return lancamentos.map(lanc => ({
+      data: new Date(lanc.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      producao: lanc.producao_total,
+      perdas: lanc.perdas_total,
+      turno: lanc.turno
+    })).reverse();
   };
 
   if (loading) {

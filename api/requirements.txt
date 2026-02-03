@@ -1,0 +1,4 @@
+fastapi
+supabase==2.27.3
+pydantic
+python-dotenv

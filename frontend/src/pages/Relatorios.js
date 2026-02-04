@@ -243,18 +243,24 @@ function Relatorios() {
             <h2 style={{marginBottom: '20px'}}>Detalhes por Turno</h2>
             
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px'}}>
-              <div style={{padding: '20px', background: '#f7fafc', borderRadius: '8px', borderLeft: '4px solid #667eea'}}>
-                <h3 style={{color: '#667eea', marginBottom: '15px', fontSize: '18px'}}>Turno A</h3>
+              <div style={{padding: '20px', background: '#f7fafc', borderRadius: '8px', borderLeft: '4px solid #1e40af'}}>
+                <h3 style={{color: '#1e40af', marginBottom: '15px', fontSize: '18px'}}>Turno A</h3>
                 <div style={{marginBottom: '10px'}}>
                   <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Produção</div>
                   <div style={{fontSize: '24px', fontWeight: '700', color: '#2d3748'}}>
-                    {relatorio.por_turno.A.producao} kg
+                    {formatarKg(relatorio.por_turno.A.producao)} kg
+                  </div>
+                </div>
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
+                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
+                    {formatarKg(relatorio.por_turno.A.perdas)} kg ({relatorio.por_turno.A.percentual_perdas}%)
                   </div>
                 </div>
                 <div>
-                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
-                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
-                    {relatorio.por_turno.A.perdas} kg
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Média Diária</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#48bb78'}}>
+                    {formatarKg(relatorio.por_turno.A.media_diaria)} kg
                   </div>
                 </div>
               </div>
@@ -264,13 +270,19 @@ function Relatorios() {
                 <div style={{marginBottom: '10px'}}>
                   <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Produção</div>
                   <div style={{fontSize: '24px', fontWeight: '700', color: '#2d3748'}}>
-                    {relatorio.por_turno.B.producao} kg
+                    {formatarKg(relatorio.por_turno.B.producao)} kg
+                  </div>
+                </div>
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
+                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
+                    {formatarKg(relatorio.por_turno.B.perdas)} kg ({relatorio.por_turno.B.percentual_perdas}%)
                   </div>
                 </div>
                 <div>
-                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
-                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
-                    {relatorio.por_turno.B.perdas} kg
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Média Diária</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#48bb78'}}>
+                    {formatarKg(relatorio.por_turno.B.media_diaria)} kg
                   </div>
                 </div>
               </div>
@@ -280,13 +292,19 @@ function Relatorios() {
                 <div style={{marginBottom: '10px'}}>
                   <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Produção</div>
                   <div style={{fontSize: '24px', fontWeight: '700', color: '#2d3748'}}>
-                    {relatorio.por_turno.Administrativo.producao} kg
+                    {formatarKg(relatorio.por_turno.Administrativo.producao)} kg
+                  </div>
+                </div>
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
+                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
+                    {formatarKg(relatorio.por_turno.Administrativo.perdas)} kg ({relatorio.por_turno.Administrativo.percentual_perdas}%)
                   </div>
                 </div>
                 <div>
-                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Perdas</div>
-                  <div style={{fontSize: '20px', fontWeight: '600', color: '#f56565'}}>
-                    {relatorio.por_turno.Administrativo.perdas} kg
+                  <div style={{fontSize: '12px', color: '#718096', marginBottom: '5px'}}>Média Diária</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#48bb78'}}>
+                    {formatarKg(relatorio.por_turno.Administrativo.media_diaria)} kg
                   </div>
                 </div>
               </div>

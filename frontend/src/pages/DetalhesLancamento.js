@@ -5,6 +5,10 @@ import { ArrowLeft, Calendar, Clock, Package } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
+const formatarKg = (valor) => {
+  return new Intl.NumberFormat('pt-BR').format(Math.round(valor));
+};
+
 function DetalhesLancamento() {
   const { id } = useParams();
   const navigate = useNavigate();

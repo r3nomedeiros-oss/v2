@@ -59,22 +59,26 @@ function Relatorios() {
   <meta charset="UTF-8">
   <title>Relatório de Produção</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 30px; color: #2d3748; }
-    h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+    body { font-family: Arial, sans-serif; padding: 30px; color: #2d3748; line-height: 1.6; }
+    h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px; }
+    h2 { color: #2d3748; margin-top: 30px; border-left: 4px solid #1e40af; padding-left: 10px; }
     .header { text-align: right; color: #718096; margin-bottom: 20px; font-size: 12px; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f7fafc; font-weight: 600; }
+    th { background: #f7fafc; font-weight: 600; color: #4a5568; }
     .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
     .stat-box { padding: 15px; background: #f7fafc; border-left: 4px solid #1e40af; border-radius: 4px; }
-    .stat-box strong { display: block; color: #718096; font-size: 12px; }
-    .stat-box .value { font-size: 20px; font-weight: 700; }
+    .stat-box strong { display: block; color: #718096; font-size: 12px; text-transform: uppercase; }
+    .stat-box .value { font-size: 20px; font-weight: 700; color: #1a202c; }
+    .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #a0aec0; border-top: 1px solid #edf2f7; padding-top: 10px; }
+    @media print { .no-print { display: none; } }
   </style>
 </head>
 <body>
   <div class="header">Gerado em: ${dataAtual}</div>
   <h1>Relatório de Produção - ${periodoTexto}</h1>
   
+  <h2>Informações Consolidadas</h2>
   <div class="stats">
     <div class="stat-box"><strong>Produção Total</strong><div class="value">${formatarKg(relatorio.producao_total)} kg</div></div>
     <div class="stat-box"><strong>Perdas Totais</strong><div class="value">${formatarKg(relatorio.perdas_total)} kg (${relatorio.percentual_perdas}%)</div></div>
@@ -82,7 +86,7 @@ function Relatorios() {
     <div class="stat-box"><strong>Dias Produzidos</strong><div class="value">${relatorio.dias_produzidos}</div></div>
   </div>
   
-  <h2>Resumo por Turno</h2>
+  <h2>Detalhamento por Turno</h2>
   <table>
     <thead>
       <tr>
@@ -91,6 +95,7 @@ function Relatorios() {
         <th>Perdas (kg)</th>
         <th>% Perdas</th>
         <th>Média Diária</th>
+        <th>Dias</th>
       </tr>
     </thead>
     <tbody>
@@ -101,17 +106,31 @@ function Relatorios() {
           <td>${formatarKg(dados.perdas)}</td>
           <td>${dados.percentual_perdas}%</td>
           <td>${formatarKg(dados.media_diaria)}</td>
+          <td>${dados.dias_produzidos}</td>
         </tr>
       `).join('')}
     </tbody>
   </table>
-  <script>window.onload = () => { window.print(); window.close(); }</script>
+
+  <div class="footer">PolyTrack - Sistema de Controle de Produção</div>
+  
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+  </script>
 </body>
 </html>`;
     
     const blob = new Blob([conteudo], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
-    window.open(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    // Em vez de forçar download do HTML, abrimos para impressão que é o comportamento esperado para PDF no navegador
+    window.open(url, '_blank');
   };
 
   const exportarExcel = () => {
@@ -126,17 +145,19 @@ function Relatorios() {
     csv += `Média Diária;${formatarKg(relatorio.media_diaria)} kg\n`;
     csv += `Dias Produzidos;${relatorio.dias_produzidos}\n\n`;
     csv += `DETALHES POR TURNO\n`;
-    csv += `Turno;Produção (kg);Perdas (kg);% Perdas;Média Diária\n`;
+    csv += `Turno;Produção (kg);Perdas (kg);% Perdas;Média Diária;Dias Produzidos\n`;
     Object.entries(relatorio.por_turno).forEach(([turno, dados]) => {
-      csv += `Turno ${turno};${formatarKg(dados.producao)};${formatarKg(dados.perdas)};${dados.percentual_perdas}%;${formatarKg(dados.media_diaria)}\n`;
+      csv += `Turno ${turno};${formatarKg(dados.producao)};${formatarKg(dados.perdas)};${dados.percentual_perdas}%;${formatarKg(dados.media_diaria)};${dados.dias_produzidos}\n`;
     });
     
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `relatorio_producao_${periodo}.csv`;
+    a.download = `relatorio_producao_${periodo}_${new Date().getTime()}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -187,15 +208,47 @@ function Relatorios() {
       {loading && <div className="loading">Gerando relatório...</div>}
 
       {relatorio && !loading && (
-        <div className="card">
-          <h2 style={{marginBottom: '20px'}}>Informações Consolidadas</h2>
-          <div className="stats-grid">
-            <div className="stat-card"><h3>Produção Total</h3><div className="value">{formatarKg(relatorio.producao_total)} kg</div></div>
-            <div className="stat-card"><h3>Perdas Totais</h3><div className="value">{formatarKg(relatorio.perdas_total)} kg</div></div>
-            <div className="stat-card"><h3>Percentual de Perdas</h3><div className="value">{relatorio.percentual_perdas}%</div></div>
-            <div className="stat-card"><h3>Média Diária</h3><div className="value">{formatarKg(relatorio.media_diaria)} kg</div></div>
+        <>
+          <div className="card">
+            <h2 style={{marginBottom: '20px'}}>Informações Consolidadas</h2>
+            <div className="stats-grid">
+              <div className="stat-card"><h3>Produção Total</h3><div className="value">{formatarKg(relatorio.producao_total)} kg</div></div>
+              <div className="stat-card"><h3>Perdas Totais</h3><div className="value">{formatarKg(relatorio.perdas_total)} kg</div></div>
+              <div className="stat-card"><h3>Percentual de Perdas</h3><div className="value">{relatorio.percentual_perdas}%</div></div>
+              <div className="stat-card"><h3>Média Diária</h3><div className="value">{formatarKg(relatorio.media_diaria)} kg</div></div>
+            </div>
           </div>
-        </div>
+
+          <div className="card">
+            <h2 style={{marginBottom: '20px'}}>Detalhamento por Turno</h2>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Turno</th>
+                    <th>Produção (kg)</th>
+                    <th>Perdas (kg)</th>
+                    <th>% Perdas</th>
+                    <th>Média Diária</th>
+                    <th>Dias</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(relatorio.por_turno).map(([turno, dados]) => (
+                    <tr key={turno}>
+                      <td><strong>Turno {turno}</strong></td>
+                      <td>{formatarKg(dados.producao)} kg</td>
+                      <td>{formatarKg(dados.perdas)} kg</td>
+                      <td><span className={`badge ${dados.percentual_perdas > 10 ? 'badge-danger' : 'badge-warning'}`}>{dados.percentual_perdas}%</span></td>
+                      <td>{formatarKg(dados.media_diaria)} kg</td>
+                      <td>{dados.dias_produzidos}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

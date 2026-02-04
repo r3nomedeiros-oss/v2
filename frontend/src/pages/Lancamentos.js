@@ -67,6 +67,7 @@ function Lancamentos() {
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
     th { background: #f7fafc; font-weight: 600; }
+    .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #a0aec0; }
   </style>
 </head>
 <body>
@@ -94,11 +95,19 @@ function Lancamentos() {
       `).join('')}
     </tbody>
   </table>
-  <script>window.onload = () => { window.print(); window.close(); }</script>
+  <div class="footer">PolyTrack - Sistema de Controle de Produção</div>
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+  </script>
 </body>
 </html>`;
     const blob = new Blob([conteudo], { type: 'text/html' });
-    window.open(window.URL.createObjectURL(blob));
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
   };
 
   const exportarHistoricoExcel = () => {
@@ -107,10 +116,13 @@ function Lancamentos() {
       csv += `${formatarData(lanc.data)};${formatarHora(lanc.hora)};${lanc.turno};${formatarKg(lanc.producao_total)};${formatarKg(lanc.perdas_total)};${lanc.percentual_perdas}%\n`;
     });
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = window.URL.createObjectURL(blob);
-    a.download = `historico_producao.csv`;
+    a.href = url;
+    a.download = `historico_producao_${new Date().getTime()}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   };
 
   if (loading) {

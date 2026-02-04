@@ -5,6 +5,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
+// Função para formatar números
+const formatarKg = (valor) => {
+  return new Intl.NumberFormat('pt-BR').format(Math.round(valor));
+};
+
 function Dashboard() {
   const [stats, setStats] = useState(null);
   const [lancamentos, setLancamentos] = useState([]);
@@ -21,7 +26,18 @@ function Dashboard() {
         axios.get(`${API_URL}/lancamentos`)
       ]);
       setStats(statsResponse.data);
-      setLancamentos(lancamentosResponse.data.slice(0, 10)); // Últimos 10
+      
+      // Últimos 7 dias
+      const hoje = new Date();
+      const seteDiasAtras = new Date();
+      seteDiasAtras.setDate(hoje.getDate() - 7);
+      
+      const ultimos7Dias = lancamentosResponse.data.filter(lanc => {
+        const dataLanc = new Date(lanc.data);
+        return dataLanc >= seteDiasAtras && dataLanc <= hoje;
+      });
+      
+      setLancamentos(ultimos7Dias);
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {

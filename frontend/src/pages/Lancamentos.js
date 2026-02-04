@@ -93,10 +93,10 @@ function Lancamentos() {
                       <span className="badge badge-success">{lanc.turno}</span>
                     </td>
                     <td style={{fontWeight: '600', color: '#48bb78'}}>
-                      {lanc.producao_total} kg
+                      {formatarKg(lanc.producao_total)} kg
                     </td>
                     <td style={{fontWeight: '600', color: '#f56565'}}>
-                      {lanc.perdas_total} kg
+                      {formatarKg(lanc.perdas_total)} kg
                     </td>
                     <td>
                       <span className={`badge ${lanc.percentual_perdas > 10 ? 'badge-danger' : 'badge-warning'}`}>

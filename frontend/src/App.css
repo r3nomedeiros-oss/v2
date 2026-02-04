@@ -86,14 +86,15 @@ body {
 }
 
 .page-header h1 {
-  font-size: 28px;
+  font-size: 32px;
   color: #2d3748;
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .page-header p {
   color: #718096;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .card {

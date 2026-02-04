@@ -104,7 +104,7 @@ function Dashboard() {
       </div>
 
       <div className="card">
-        <h2 style={{marginBottom: '20px'}}>Produção x Perdas (Últimos 10 Lançamentos)</h2>
+        <h2 style={{marginBottom: '20px'}}>Produção x Perdas (Últimos 7 Dias)</h2>
         
         {lancamentos.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>

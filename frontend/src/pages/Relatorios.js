@@ -4,6 +4,10 @@ import { Download, FileText, FileSpreadsheet } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
+const formatarKg = (valor) => {
+  return new Intl.NumberFormat('pt-BR').format(Math.round(valor));
+};
+
 function Relatorios() {
   const [periodo, setPeriodo] = useState('mensal');
   const [dataInicio, setDataInicio] = useState('');

@@ -191,6 +191,7 @@ def gerar_relatorio():
         dias_unicos = set()
         producao_por_turno = {"A": 0, "B": 0, "Administrativo": 0}
         perdas_por_turno = {"A": 0, "B": 0, "Administrativo": 0}
+        dias_por_turno = {"A": set(), "B": set(), "Administrativo": set()}
         
         for lanc in lancamentos:
             itens = itens_dict.get(lanc['id'], [])
@@ -204,10 +205,26 @@ def gerar_relatorio():
             turno = lanc['turno']
             producao_por_turno[turno] = producao_por_turno.get(turno, 0) + prod_lanc
             perdas_por_turno[turno] = perdas_por_turno.get(turno, 0) + perd_lanc
+            dias_por_turno[turno].add(lanc['data'])
         
         dias_produzidos = len(dias_unicos)
         media_diaria = producao_total / dias_produzidos if dias_produzidos > 0 else 0
         percentual_perdas = (perdas_total / producao_total * 100) if producao_total > 0 else 0
+        
+        # Calcular média diária e % perdas por turno
+        def calc_turno_stats(turno):
+            prod = producao_por_turno.get(turno, 0)
+            perd = perdas_por_turno.get(turno, 0)
+            dias = len(dias_por_turno.get(turno, set()))
+            media = prod / dias if dias > 0 else 0
+            perc = (perd / prod * 100) if prod > 0 else 0
+            return {
+                "producao": round(prod, 2),
+                "perdas": round(perd, 2),
+                "media_diaria": round(media, 2),
+                "percentual_perdas": round(perc, 2),
+                "dias_produzidos": dias
+            }
         
         relatorio = {
             "producao_total": round(producao_total, 2),
@@ -216,18 +233,9 @@ def gerar_relatorio():
             "dias_produzidos": dias_produzidos,
             "media_diaria": round(media_diaria, 2),
             "por_turno": {
-                "A": {
-                    "producao": round(producao_por_turno.get("A", 0), 2),
-                    "perdas": round(perdas_por_turno.get("A", 0), 2)
-                },
-                "B": {
-                    "producao": round(producao_por_turno.get("B", 0), 2),
-                    "perdas": round(perdas_por_turno.get("B", 0), 2)
-                },
-                "Administrativo": {
-                    "producao": round(producao_por_turno.get("Administrativo", 0), 2),
-                    "perdas": round(perdas_por_turno.get("Administrativo", 0), 2)
-                }
+                "A": calc_turno_stats("A"),
+                "B": calc_turno_stats("B"),
+                "Administrativo": calc_turno_stats("Administrativo")
             }
         }
         

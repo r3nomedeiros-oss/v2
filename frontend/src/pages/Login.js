@@ -19,7 +19,6 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
       const response = await axios.post(`${API_URL}${endpoint}`, form);
@@ -34,7 +33,7 @@ function Login({ onLogin }) {
         setIsRegister(false);
       }
     } catch (error) {
-      alert(error.response?.data?.error || 'Erro ao processar');
+      alert(error.response?.data?.error || 'Erro ao processar login. Verifique suas credenciais.');
     } finally {
       setLoading(false);
     }
@@ -42,15 +41,30 @@ function Login({ onLogin }) {
 
   return (
     <div style={{
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
-      padding: '20px'
+      zIndex: 9999,
+      overflow: 'hidden'
     }}>
-      <div className="card" style={{maxWidth: '450px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'}}>
-        <div style={{textAlign: 'center', marginBottom: '30px'}}>
+      <div style={{
+        background: 'white',
+        borderRadius: '12px',
+        padding: '40px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        width: '90%',
+        maxWidth: '450px',
+        textAlign: 'center'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <div style={{
             width: '80px',
             height: '80px',
@@ -63,15 +77,15 @@ function Login({ onLogin }) {
           }}>
             <Factory size={40} color="white" />
           </div>
-          <h1 style={{marginBottom: '10px'}}>
+          <h1 style={{ fontSize: '28px', color: '#2d3748', marginBottom: '10px', fontWeight: '700' }}>
             {isRegister ? 'Criar Conta' : 'Bem-vindo'}
           </h1>
-          <p style={{color: '#718096'}}>
-            Sistema de Controle de Produção
+          <p style={{ color: '#718096', marginBottom: '0' }}>
+            Sistema de Controle de Produção - PolyTrack
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
           {isRegister && (
             <div className="form-group">
               <label>Nome</label>
@@ -84,7 +98,6 @@ function Login({ onLogin }) {
               />
             </div>
           )}
-
           <div className="form-group">
             <label>Email</label>
             <input
@@ -95,7 +108,6 @@ function Login({ onLogin }) {
               required
             />
           </div>
-
           <div className="form-group">
             <label>Senha</label>
             <input
@@ -106,7 +118,6 @@ function Login({ onLogin }) {
               required
             />
           </div>
-
           {isRegister && (
             <div className="form-group">
               <label>Tipo de Usuário</label>
@@ -120,16 +131,14 @@ function Login({ onLogin }) {
               </select>
             </div>
           )}
-
-          <button type="submit" className="btn btn-primary" style={{width: '100%', marginBottom: '10px'}} disabled={loading}>
-            {isRegister ? <UserPlus size={16} /> : <LogIn size={16} />}
+          <button type="submit" className="btn btn-primary" style={{width: '100%', marginBottom: '10px', justifyContent: 'center'}} disabled={loading}>
+            {isRegister ? <UserPlus size={18} /> : <LogIn size={18} />}
             {loading ? 'Processando...' : (isRegister ? 'Cadastrar' : 'Entrar')}
           </button>
-
           <button 
             type="button" 
             className="btn btn-secondary" 
-            style={{width: '100%'}}
+            style={{width: '100%', justifyContent: 'center'}}
             onClick={() => setIsRegister(!isRegister)}
           >
             {isRegister ? 'Já tem conta? Faça login' : 'Não tem conta? Cadastre-se'}

@@ -76,7 +76,7 @@ function NovoLancamento() {
         <div className="card">
           <h2 style={{marginBottom: '20px'}}>Informações Gerais</h2>
           
-          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px'}}>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px'}}>
             <div className="form-group">
               <label>Data</label>
               <input
@@ -100,17 +100,6 @@ function NovoLancamento() {
                 <option value="B">Turno B</option>
                 <option value="Administrativo">Administrativo</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label>Hora (automática)</label>
-              <input
-                type="text"
-                className="form-control"
-                value={lancamento.hora}
-                disabled
-                style={{background: '#f7fafc', cursor: 'not-allowed'}}
-              />
             </div>
           </div>
 

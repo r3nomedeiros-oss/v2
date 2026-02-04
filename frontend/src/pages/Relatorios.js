@@ -39,7 +39,81 @@ function Relatorios() {
   };
 
   const exportarPDF = () => {
-    alert('Função de exportar PDF em desenvolvimento');
+    if (!relatorio) return;
+    
+    // Criar HTML para PDF
+    const conteudo = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial; padding: 20px; }
+            h1 { color: #1e40af; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background: #f7fafc; font-weight: 600; }
+            .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+            .stat-box { padding: 15px; background: #f7fafc; border-left: 4px solid #1e40af; }
+          </style>
+        </head>
+        <body>
+          <h1>Relatório de Produção - ${periodo}</h1>
+          <div class="stats">
+            <div class="stat-box">
+              <strong>Produção Total:</strong> ${formatarKg(relatorio.producao_total)} kg
+            </div>
+            <div class="stat-box">
+              <strong>Perdas Totais:</strong> ${formatarKg(relatorio.perdas_total)} kg (${relatorio.percentual_perdas}%)
+            </div>
+            <div class="stat-box">
+              <strong>Média Diária:</strong> ${formatarKg(relatorio.media_diaria)} kg
+            </div>
+            <div class="stat-box">
+              <strong>Dias Produzidos:</strong> ${relatorio.dias_produzidos}
+            </div>
+          </div>
+          <h2>Detalhes por Turno</h2>
+          <table>
+            <tr>
+              <th>Turno</th>
+              <th>Produção</th>
+              <th>Perdas</th>
+              <th>% Perdas</th>
+              <th>Média Diária</th>
+            </tr>
+            <tr>
+              <td>Turno A</td>
+              <td>${formatarKg(relatorio.por_turno.A.producao)} kg</td>
+              <td>${formatarKg(relatorio.por_turno.A.perdas)} kg</td>
+              <td>${relatorio.por_turno.A.percentual_perdas}%</td>
+              <td>${formatarKg(relatorio.por_turno.A.media_diaria)} kg</td>
+            </tr>
+            <tr>
+              <td>Turno B</td>
+              <td>${formatarKg(relatorio.por_turno.B.producao)} kg</td>
+              <td>${formatarKg(relatorio.por_turno.B.perdas)} kg</td>
+              <td>${relatorio.por_turno.B.percentual_perdas}%</td>
+              <td>${formatarKg(relatorio.por_turno.B.media_diaria)} kg</td>
+            </tr>
+            <tr>
+              <td>Administrativo</td>
+              <td>${formatarKg(relatorio.por_turno.Administrativo.producao)} kg</td>
+              <td>${formatarKg(relatorio.por_turno.Administrativo.perdas)} kg</td>
+              <td>${relatorio.por_turno.Administrativo.percentual_perdas}%</td>
+              <td>${formatarKg(relatorio.por_turno.Administrativo.media_diaria)} kg</td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `;
+    
+    const blob = new Blob([conteudo], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_${periodo}_${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    
+    alert('Arquivo HTML gerado! Abra-o e use Ctrl+P para imprimir como PDF');
   };
 
   const exportarExcel = () => {

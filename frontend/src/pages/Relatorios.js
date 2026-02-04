@@ -197,6 +197,9 @@ function Relatorios() {
           
           {relatorio && (
             <>
+              <button onClick={exportarPDF} className="btn btn-danger">
+                <FileText size={16} /> Exportar PDF
+              </button>
               <button onClick={exportarExcel} className="btn btn-success">
                 <FileSpreadsheet size={16} /> Exportar Excel
               </button>

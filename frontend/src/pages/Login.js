@@ -41,14 +41,35 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}}>
-      <div className="card" style={{maxWidth: '400px', width: '100%', margin: '20px'}}>
-        <h1 style={{marginBottom: '10px', textAlign: 'center'}}>
-          {isRegister ? 'Cadastro' : 'Login'}
-        </h1>
-        <p style={{textAlign: 'center', color: '#718096', marginBottom: '30px'}}>
-          Sistema de Controle de Produção
-        </p>
+    <div style={{
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
+      padding: '20px'
+    }}>
+      <div className="card" style={{maxWidth: '450px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'}}>
+        <div style={{textAlign: 'center', marginBottom: '30px'}}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
+            borderRadius: '50%',
+            margin: '0 auto 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Factory size={40} color="white" />
+          </div>
+          <h1 style={{marginBottom: '10px'}}>
+            {isRegister ? 'Criar Conta' : 'Bem-vindo'}
+          </h1>
+          <p style={{color: '#718096'}}>
+            Sistema de Controle de Produção
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit}>
           {isRegister && (

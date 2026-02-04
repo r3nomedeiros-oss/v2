@@ -72,7 +72,7 @@ function DetalhesLancamento() {
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Produção Total</h3>
-          <div className="value">{totais.producao.toFixed(2)} kg</div>
+          <div className="value">{formatarKg(totais.producao)} kg</div>
           <div className="subtitle">
             <Package size={14} style={{display: 'inline', marginRight: '5px'}} />
             {lancamento.itens?.length || 0} itens
@@ -81,17 +81,17 @@ function DetalhesLancamento() {
 
         <div className="stat-card">
           <h3>Orelha</h3>
-          <div className="value">{parseFloat(lancamento.orelha_kg).toFixed(2)} kg</div>
+          <div className="value">{formatarKg(parseFloat(lancamento.orelha_kg))} kg</div>
         </div>
 
         <div className="stat-card">
           <h3>Aparas</h3>
-          <div className="value">{parseFloat(lancamento.aparas_kg).toFixed(2)} kg</div>
+          <div className="value">{formatarKg(parseFloat(lancamento.aparas_kg))} kg</div>
         </div>
 
         <div className="stat-card">
           <h3>Perdas Totais</h3>
-          <div className="value">{totais.perdas.toFixed(2)} kg</div>
+          <div className="value">{formatarKg(totais.perdas)} kg</div>
           <div className="subtitle">{totais.percentual}% da produção</div>
         </div>
       </div>

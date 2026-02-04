@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Factory } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 

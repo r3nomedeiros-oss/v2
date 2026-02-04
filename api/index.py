@@ -152,13 +152,40 @@ def deletar_lancamento(lancamento_id):
 @app.route('/api/relatorios', methods=['GET'])
 def gerar_relatorio():
     try:
+        from datetime import timedelta
+        
         periodo = request.args.get('periodo', 'mensal')
         data_inicio = request.args.get('data_inicio')
         data_fim = request.args.get('data_fim')
         
+        # Calcular datas baseado no período
+        hoje = datetime.now().date()
+        
+        if periodo == 'semanal':
+            # Domingo a sábado da semana atual
+            dias_desde_domingo = (hoje.weekday() + 1) % 7
+            data_inicio = (hoje - timedelta(days=dias_desde_domingo)).isoformat()
+            data_fim = (hoje + timedelta(days=(6 - dias_desde_domingo))).isoformat()
+        
+        elif periodo == 'mensal':
+            # Primeiro ao último dia do mês atual
+            data_inicio = hoje.replace(day=1).isoformat()
+            # Último dia do mês
+            if hoje.month == 12:
+                data_fim = hoje.replace(day=31).isoformat()
+            else:
+                proximo_mes = hoje.replace(month=hoje.month + 1, day=1)
+                data_fim = (proximo_mes - timedelta(days=1)).isoformat()
+        
+        elif periodo == 'anual':
+            # Janeiro a dezembro do ano atual
+            data_inicio = hoje.replace(month=1, day=1).isoformat()
+            data_fim = hoje.replace(month=12, day=31).isoformat()
+        
+        # Query com filtro de datas
         query = supabase.table("lancamentos").select("*")
         
-        if periodo == 'customizado' and data_inicio and data_fim:
+        if data_inicio and data_fim:
             query = query.gte("data", data_inicio).lte("data", data_fim)
         
         response = query.execute()

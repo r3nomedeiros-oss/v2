@@ -305,3 +305,80 @@ table tbody tr:hover {
   background: #fed7d7;
   color: #742a2a;
 }
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 15px 10px;
+  }
+  
+  .sidebar-header h2,
+  .sidebar .nav-item span,
+  .sidebar > div:nth-child(2) {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    padding: 15px;
+  }
+  
+  .page-header h1 {
+    font-size: 22px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card .value {
+    font-size: 24px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    font-size: 13px;
+  }
+  
+  table th,
+  table td {
+    padding: 8px;
+  }
+  
+  .form-control {
+    font-size: 16px; /* Evita zoom no iOS */
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .item-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 10px;
+  }
+  
+  .card {
+    padding: 15px;
+  }
+  
+  .page-header h1 {
+    font-size: 20px;
+  }
+  
+  .btn {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+}

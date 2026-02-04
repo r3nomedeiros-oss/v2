@@ -68,27 +68,27 @@ function Dashboard() {
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Produção Total</h3>
-          <div className="value">{stats?.producao_total || 0} kg</div>
-          <div className="subtitle">
-            <Package size={14} style={{display: 'inline', marginRight: '5px'}} />
+          <div className="value">{formatarKg(stats?.producao_total || 0)} kg</div>
+          <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
+            <Package size={16} style={{display: 'inline', marginRight: '5px'}} />
             {stats?.dias_produzidos || 0} dias produzidos
           </div>
         </div>
 
         <div className="stat-card">
           <h3>Média Diária</h3>
-          <div className="value">{stats?.media_diaria || 0} kg</div>
-          <div className="subtitle">
-            <TrendingUp size={14} style={{display: 'inline', marginRight: '5px'}} />
+          <div className="value">{formatarKg(stats?.media_diaria || 0)} kg</div>
+          <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
+            <TrendingUp size={16} style={{display: 'inline', marginRight: '5px'}} />
             Por dia produzido
           </div>
         </div>
 
         <div className="stat-card">
           <h3>Perdas Totais</h3>
-          <div className="value">{stats?.perdas_total || 0} kg</div>
-          <div className="subtitle">
-            <AlertCircle size={14} style={{display: 'inline', marginRight: '5px'}} />
+          <div className="value">{formatarKg(stats?.perdas_total || 0)} kg</div>
+          <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
+            <AlertCircle size={16} style={{display: 'inline', marginRight: '5px'}} />
             {stats?.percentual_perdas || 0}% da produção
           </div>
         </div>
@@ -96,8 +96,8 @@ function Dashboard() {
         <div className="stat-card">
           <h3>Período</h3>
           <div className="value">Mensal</div>
-          <div className="subtitle">
-            <Calendar size={14} style={{display: 'inline', marginRight: '5px'}} />
+          <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
+            <Calendar size={16} style={{display: 'inline', marginRight: '5px'}} />
             Últimos 30 dias
           </div>
         </div>

@@ -218,12 +218,12 @@ function Relatorios() {
             <div className="stats-grid">
               <div className="stat-card">
                 <h3>Produção Total</h3>
-                <div className="value">{relatorio.producao_total} kg</div>
+                <div className="value">{formatarKg(relatorio.producao_total)} kg</div>
               </div>
 
               <div className="stat-card">
                 <h3>Perdas Totais</h3>
-                <div className="value">{relatorio.perdas_total} kg</div>
+                <div className="value">{formatarKg(relatorio.perdas_total)} kg</div>
               </div>
 
               <div className="stat-card">
@@ -233,7 +233,7 @@ function Relatorios() {
 
               <div className="stat-card">
                 <h3>Média Diária</h3>
-                <div className="value">{relatorio.media_diaria} kg</div>
+                <div className="value">{formatarKg(relatorio.media_diaria)} kg</div>
                 <div className="subtitle">{relatorio.dias_produzidos} dias</div>
               </div>
             </div>

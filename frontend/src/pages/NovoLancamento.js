@@ -12,7 +12,7 @@ function NovoLancamento() {
   const [lancamento, setLancamento] = useState({
     data: new Date().toISOString().split('T')[0],
     turno: 'A',
-    hora: new Date().toTimeString().split(' ')[0].substring(0, 5),
+    hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     orelha_kg: '',
     aparas_kg: '',
     itens: [
@@ -20,12 +20,12 @@ function NovoLancamento() {
     ]
   });
 
-  // Atualizar hora automaticamente a cada minuto
+  // Atualizar hora automaticamente a cada minuto (sem segundos)
   useEffect(() => {
     const interval = setInterval(() => {
       setLancamento(prev => ({
         ...prev,
-        hora: new Date().toTimeString().split(' ')[0].substring(0, 5)
+        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       }));
     }, 60000);
     return () => clearInterval(interval);
@@ -113,6 +113,7 @@ function NovoLancamento() {
                 value={lancamento.orelha_kg}
                 onChange={(e) => setLancamento({...lancamento, orelha_kg: e.target.value})}
                 required
+                placeholder="0,00"
               />
             </div>
 
@@ -125,6 +126,7 @@ function NovoLancamento() {
                 value={lancamento.aparas_kg}
                 onChange={(e) => setLancamento({...lancamento, aparas_kg: e.target.value})}
                 required
+                placeholder="0,00"
               />
             </div>
           </div>
@@ -184,6 +186,7 @@ function NovoLancamento() {
                   value={item.pacote_kg}
                   onChange={(e) => atualizarItem(index, 'pacote_kg', e.target.value)}
                   required
+                  placeholder="0,00"
                 />
               </div>
 
@@ -196,6 +199,7 @@ function NovoLancamento() {
                   value={item.producao_kg}
                   onChange={(e) => atualizarItem(index, 'producao_kg', e.target.value)}
                   required
+                  placeholder="0,00"
                 />
               </div>
             </div>

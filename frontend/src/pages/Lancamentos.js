@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, FileText, FileSpreadsheet } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -48,15 +48,90 @@ function Lancamentos() {
     return `${dia}/${mes}/${ano}`;
   };
 
+  const formatarHora = (hora) => {
+    if (!hora) return '';
+    return hora.substring(0, 5); // Garante que mostre apenas HH:mm
+  };
+
+  const exportarHistoricoPDF = () => {
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const conteudo = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Histórico de Produção</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; color: #2d3748; }
+    h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+    th { background: #f7fafc; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Histórico de Produção - PolyTrack</h1>
+  <p>Gerado em: ${dataAtual}</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Data/Hora</th>
+        <th>Turno</th>
+        <th>Produção (kg)</th>
+        <th>Perdas (kg)</th>
+        <th>% Perdas</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${lancamentos.map(lanc => `
+        <tr>
+          <td>${formatarData(lanc.data)} ${formatarHora(lanc.hora)}</td>
+          <td>${lanc.turno}</td>
+          <td>${formatarKg(lanc.producao_total)}</td>
+          <td>${formatarKg(lanc.perdas_total)}</td>
+          <td>${lanc.percentual_perdas}%</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+  <script>window.onload = () => { window.print(); window.close(); }</script>
+</body>
+</html>`;
+    const blob = new Blob([conteudo], { type: 'text/html' });
+    window.open(window.URL.createObjectURL(blob));
+  };
+
+  const exportarHistoricoExcel = () => {
+    let csv = `Data;Hora;Turno;Produção (kg);Perdas (kg);% Perdas\n`;
+    lancamentos.forEach(lanc => {
+      csv += `${formatarData(lanc.data)};${formatarHora(lanc.hora)};${lanc.turno};${formatarKg(lanc.producao_total)};${formatarKg(lanc.perdas_total)};${lanc.percentual_perdas}%\n`;
+    });
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = `historico_producao.csv`;
+    a.click();
+  };
+
   if (loading) {
     return <div className="loading">Carregando...</div>;
   }
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Lançamentos</h1>
-        <p>Histórico de produção</p>
+      <div className="page-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <div>
+          <h1>Lançamentos</h1>
+          <p>Histórico de produção</p>
+        </div>
+        <div style={{display: 'flex', gap: '10px'}}>
+          <button onClick={exportarHistoricoPDF} className="btn btn-danger" style={{padding: '8px 15px', fontSize: '13px'}}>
+            <FileText size={14} /> PDF
+          </button>
+          <button onClick={exportarHistoricoExcel} className="btn btn-success" style={{padding: '8px 15px', fontSize: '13px'}}>
+            <FileSpreadsheet size={14} /> Excel
+          </button>
+        </div>
       </div>
 
       {lancamentos.length === 0 ? (
@@ -86,7 +161,7 @@ function Lancamentos() {
                   <tr key={lanc.id}>
                     <td>
                       <div style={{fontWeight: '600'}}>
-                        {formatarData(lanc.data)} - {lanc.hora}
+                        {formatarData(lanc.data)} - {formatarHora(lanc.hora)}
                       </div>
                     </td>
                     <td>

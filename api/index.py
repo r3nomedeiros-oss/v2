@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 import uuid
 from supabase import create_client
 import bcrypt
@@ -27,9 +27,10 @@ def root():
 def criar_lancamento():
     try:
         data = request.get_json()
+        lancamento_id = str(uuid.uuid4())
         
         lancamento = {
-            "id": str(uuid.uuid4()),
+            "id": lancamento_id,
             "data": data['data'],
             "turno": data['turno'],
             "hora": data['hora'],
@@ -37,270 +38,135 @@ def criar_lancamento():
             "aparas_kg": float(data['aparas_kg'])
         }
         
-        result_lanc = supabase.table("lancamentos").insert(lancamento).execute()
-        lancamento_id = lancamento['id']
+        supabase.table("lancamentos").insert(lancamento).execute()
         
         itens = []
         for item in data['itens']:
-            item_obj = {
+            itens.append({
                 "id": str(uuid.uuid4()),
                 "lancamento_id": lancamento_id,
                 "formato": item['formato'],
                 "cor": item['cor'],
                 "pacote_kg": float(item['pacote_kg']),
                 "producao_kg": float(item['producao_kg'])
-            }
-            itens.append(item_obj)
+            })
         
         if itens:
             supabase.table("itens_producao").insert(itens).execute()
         
         return jsonify({"success": True, "id": lancamento_id}), 201
-    
     except Exception as e:
-        print(f"Erro ao criar lançamento: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/lancamentos', methods=['GET'])
 def listar_lancamentos():
     try:
-        response = supabase.table("lancamentos").select("*").order("data", desc=True).order("hora", desc=True).execute()
-        lancamentos = response.data
+        # Otimização: Buscar lançamentos e itens em apenas 2 queries
+        resp_lanc = supabase.table("lancamentos").select("*").order("data", desc=True).order("hora", desc=True).limit(100).execute()
+        lancamentos = resp_lanc.data
         
+        if not lancamentos:
+            return jsonify([])
+            
+        ids = [l['id'] for l in lancamentos]
+        resp_itens = supabase.table("itens_producao").select("*").in_("lancamento_id", ids).execute()
+        
+        itens_map = {}
+        for item in resp_itens.data:
+            lid = item['lancamento_id']
+            if lid not in itens_map: itens_map[lid] = []
+            itens_map[lid].append(item)
+            
         result = []
         for lanc in lancamentos:
-            itens_response = supabase.table("itens_producao").select("*").eq("lancamento_id", lanc['id']).execute()
-            itens = itens_response.data
-            
-            producao_total = sum(float(item['producao_kg']) for item in itens)
-            perdas_total = float(lanc['orelha_kg']) + float(lanc['aparas_kg'])
-            percentual_perdas = (perdas_total / producao_total * 100) if producao_total > 0 else 0
-            
+            itens = itens_map.get(lanc['id'], [])
+            prod_total = sum(float(i['producao_kg']) for i in itens)
+            perd_total = float(lanc['orelha_kg']) + float(lanc['aparas_kg'])
             result.append({
                 **lanc,
-                'itens': itens,
-                'producao_total': producao_total,
-                'perdas_total': perdas_total,
-                'percentual_perdas': round(percentual_perdas, 2)
+                'producao_total': round(prod_total, 2),
+                'perdas_total': round(perd_total, 2),
+                'percentual_perdas': round((perd_total / prod_total * 100), 2) if prod_total > 0 else 0
             })
-        
         return jsonify(result)
-    
-    except Exception as e:
-        print(f"Erro ao listar lançamentos: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/lancamentos/<lancamento_id>', methods=['GET'])
-def obter_lancamento(lancamento_id):
-    try:
-        response = supabase.table("lancamentos").select("*").eq("id", lancamento_id).execute()
-        if not response.data:
-            return jsonify({"error": "Lançamento não encontrado"}), 404
-        
-        lancamento = response.data[0]
-        itens_response = supabase.table("itens_producao").select("*").eq("lancamento_id", lancamento_id).execute()
-        lancamento['itens'] = itens_response.data
-        return jsonify(lancamento)
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/lancamentos/<lancamento_id>', methods=['PUT'])
-def atualizar_lancamento(lancamento_id):
-    try:
-        data = request.get_json()
-        
-        lancamento_update = {
-            "data": data['data'],
-            "turno": data['turno'],
-            "hora": data['hora'],
-            "orelha_kg": float(data['orelha_kg']),
-            "aparas_kg": float(data['aparas_kg'])
-        }
-        
-        supabase.table("lancamentos").update(lancamento_update).eq("id", lancamento_id).execute()
-        supabase.table("itens_producao").delete().eq("lancamento_id", lancamento_id).execute()
-        
-        itens = []
-        for item in data['itens']:
-            item_obj = {
-                "id": str(uuid.uuid4()),
-                "lancamento_id": lancamento_id,
-                "formato": item['formato'],
-                "cor": item['cor'],
-                "pacote_kg": float(item['pacote_kg']),
-                "producao_kg": float(item['producao_kg'])
-            }
-            itens.append(item_obj)
-        
-        if itens:
-            supabase.table("itens_producao").insert(itens).execute()
-        
-        return jsonify({"success": True})
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/lancamentos/<lancamento_id>', methods=['DELETE'])
-def deletar_lancamento(lancamento_id):
-    try:
-        supabase.table("lancamentos").delete().eq("id", lancamento_id).execute()
-        return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/relatorios', methods=['GET'])
 def gerar_relatorio():
     try:
-        from datetime import timedelta
-        
         periodo = request.args.get('periodo', 'mensal')
         data_inicio = request.args.get('data_inicio')
         data_fim = request.args.get('data_fim')
         
-        # Calcular datas baseado no período
         hoje = datetime.now().date()
         
         if periodo == 'semanal':
-            # Domingo a sábado da semana atual
             dias_desde_domingo = (hoje.weekday() + 1) % 7
             data_inicio = (hoje - timedelta(days=dias_desde_domingo)).isoformat()
             data_fim = (hoje + timedelta(days=(6 - dias_desde_domingo))).isoformat()
-        
         elif periodo == 'mensal':
-            # Primeiro ao último dia do mês atual
             data_inicio = hoje.replace(day=1).isoformat()
-            # Último dia do mês
-            if hoje.month == 12:
-                data_fim = hoje.replace(day=31).isoformat()
-            else:
-                proximo_mes = hoje.replace(month=hoje.month + 1, day=1)
-                data_fim = (proximo_mes - timedelta(days=1)).isoformat()
-        
+            if hoje.month == 12: data_fim = hoje.replace(day=31).isoformat()
+            else: data_fim = (hoje.replace(month=hoje.month + 1, day=1) - timedelta(days=1)).isoformat()
         elif periodo == 'anual':
-            # Janeiro a dezembro do ano atual
             data_inicio = hoje.replace(month=1, day=1).isoformat()
             data_fim = hoje.replace(month=12, day=31).isoformat()
+        # Se for customizado, usa as datas recebidas via args
         
-        # Query com filtro de datas
         query = supabase.table("lancamentos").select("*")
+        if data_inicio: query = query.gte("data", data_inicio)
+        if data_fim: query = query.lte("data", data_fim)
         
-        if data_inicio and data_fim:
-            query = query.gte("data", data_inicio).lte("data", data_fim)
+        resp_lanc = query.execute()
+        lancamentos = resp_lanc.data
         
-        response = query.execute()
-        lancamentos = response.data
+        if not lancamentos:
+            return jsonify({"producao_total": 0, "perdas_total": 0, "percentual_perdas": 0, "dias_produzidos": 0, "media_diaria": 0, "por_turno": {"A": {"producao": 0, "perdas": 0, "media_diaria": 0, "percentual_perdas": 0, "dias_produzidos": 0}, "B": {"producao": 0, "perdas": 0, "media_diaria": 0, "percentual_perdas": 0, "dias_produzidos": 0}, "Administrativo": {"producao": 0, "perdas": 0, "media_diaria": 0, "percentual_perdas": 0, "dias_produzidos": 0}}})
+
+        ids = [l['id'] for l in lancamentos]
+        resp_itens = supabase.table("itens_producao").select("lancamento_id, producao_kg").in_("lancamento_id", ids).execute()
         
-        itens_ids = [lanc['id'] for lanc in lancamentos]
-        if not itens_ids:
-            return jsonify({
-                "producao_total": 0,
-                "perdas_total": 0,
-                "percentual_perdas": 0,
-                "dias_produzidos": 0,
-                "media_diaria": 0,
-                "por_turno": {
-                    "A": {"producao": 0, "perdas": 0},
-                    "B": {"producao": 0, "perdas": 0},
-                    "Administrativo": {"producao": 0, "perdas": 0}
-                }
-            })
-        
-        itens_response = supabase.table("itens_producao").select("*").in_("lancamento_id", itens_ids).execute()
-        itens_dict = {}
-        for item in itens_response.data:
-            if item['lancamento_id'] not in itens_dict:
-                itens_dict[item['lancamento_id']] = []
-            itens_dict[item['lancamento_id']].append(item)
-        
-        producao_total = 0
-        perdas_total = 0
-        dias_unicos = set()
-        producao_por_turno = {"A": 0, "B": 0, "Administrativo": 0}
-        perdas_por_turno = {"A": 0, "B": 0, "Administrativo": 0}
-        dias_por_turno = {"A": set(), "B": set(), "Administrativo": set()}
-        
-        for lanc in lancamentos:
-            itens = itens_dict.get(lanc['id'], [])
-            prod_lanc = sum(float(item['producao_kg']) for item in itens)
-            perd_lanc = float(lanc['orelha_kg']) + float(lanc['aparas_kg'])
+        itens_prod = {}
+        for i in resp_itens.data:
+            lid = i['lancamento_id']
+            itens_prod[lid] = itens_prod.get(lid, 0) + float(i['producao_kg'])
             
-            producao_total += prod_lanc
-            perdas_total += perd_lanc
-            dias_unicos.add(lanc['data'])
+        stats = {"producao_total": 0, "perdas_total": 0, "dias": set(), "turnos": {"A": {"p": 0, "l": 0, "d": set()}, "B": {"p": 0, "l": 0, "d": set()}, "Administrativo": {"p": 0, "l": 0, "d": set()}}}
+        
+        for l in lancamentos:
+            p = itens_prod.get(l['id'], 0)
+            loss = float(l['orelha_kg']) + float(l['aparas_kg'])
+            t = l['turno']
+            if t not in stats['turnos']: stats['turnos'][t] = {"p": 0, "l": 0, "d": set()}
             
-            turno = lanc['turno']
-            producao_por_turno[turno] = producao_por_turno.get(turno, 0) + prod_lanc
-            perdas_por_turno[turno] = perdas_por_turno.get(turno, 0) + perd_lanc
-            dias_por_turno[turno].add(lanc['data'])
-        
-        dias_produzidos = len(dias_unicos)
-        media_diaria = producao_total / dias_produzidos if dias_produzidos > 0 else 0
-        percentual_perdas = (perdas_total / producao_total * 100) if producao_total > 0 else 0
-        
-        # Calcular média diária e % perdas por turno
-        def calc_turno_stats(turno):
-            prod = producao_por_turno.get(turno, 0)
-            perd = perdas_por_turno.get(turno, 0)
-            dias = len(dias_por_turno.get(turno, set()))
-            media = prod / dias if dias > 0 else 0
-            perc = (perd / prod * 100) if prod > 0 else 0
-            return {
-                "producao": round(prod, 2),
-                "perdas": round(perd, 2),
-                "media_diaria": round(media, 2),
-                "percentual_perdas": round(perc, 2),
-                "dias_produzidos": dias
-            }
-        
-        relatorio = {
-            "producao_total": round(producao_total, 2),
-            "perdas_total": round(perdas_total, 2),
-            "percentual_perdas": round(percentual_perdas, 2),
-            "dias_produzidos": dias_produzidos,
-            "media_diaria": round(media_diaria, 2),
-            "por_turno": {
-                "A": calc_turno_stats("A"),
-                "B": calc_turno_stats("B"),
-                "Administrativo": calc_turno_stats("Administrativo")
-            }
+            stats["producao_total"] += p
+            stats["perdas_total"] += loss
+            stats["dias"].add(l['data'])
+            stats["turnos"][t]["p"] += p
+            stats["turnos"][t]["l"] += loss
+            stats["turnos"][t]["d"].add(l['data'])
+            
+        dias_total = len(stats["dias"])
+        res = {
+            "producao_total": round(stats["producao_total"], 2),
+            "perdas_total": round(stats["perdas_total"], 2),
+            "percentual_perdas": round((stats["perdas_total"] / stats["producao_total"] * 100), 2) if stats["producao_total"] > 0 else 0,
+            "dias_produzidos": dias_total,
+            "media_diaria": round(stats["producao_total"] / dias_total, 2) if dias_total > 0 else 0,
+            "por_turno": {}
         }
         
-        return jsonify(relatorio)
-    
-    except Exception as e:
-        print(f"Erro ao gerar relatório: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-# ==================== AUTENTICAÇÃO E USUÁRIOS ====================
-
-@app.route('/api/auth/register', methods=['POST'])
-def registrar_usuario():
-    try:
-        data = request.get_json()
-        
-        # Verificar se email já existe
-        existing = supabase.table("users").select("*").eq("email", data['email']).execute()
-        if existing.data:
-            return jsonify({"error": "Email já cadastrado"}), 400
-        
-        # Hash da senha
-        senha_hash = bcrypt.hashpw(data['senha'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        
-        user = {
-            "id": str(uuid.uuid4()),
-            "nome": data['nome'],
-            "email": data['email'],
-            "senha": senha_hash,
-            "tipo": data['tipo']
-        }
-        
-        supabase.table("users").insert(user).execute()
-        
-        # Retornar sem senha
-        del user['senha']
-        return jsonify({"success": True, "user": user}), 201
-    
+        for t, data in stats["turnos"].items():
+            d_turno = len(data["d"])
+            res["por_turno"][t] = {
+                "producao": round(data["p"], 2),
+                "perdas": round(data["l"], 2),
+                "media_diaria": round(data["p"] / d_turno, 2) if d_turno > 0 else 0,
+                "percentual_perdas": round((data["l"] / data["p"] * 100), 2) if data["p"] > 0 else 0,
+                "dias_produzidos": d_turno
+            }
+        return jsonify(res)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -308,49 +174,16 @@ def registrar_usuario():
 def login():
     try:
         data = request.get_json()
-        
-        # Buscar usuário
-        response = supabase.table("users").select("*").eq("email", data['email']).execute()
-        if not response.data:
-            return jsonify({"error": "Email ou senha incorretos"}), 401
-        
-        user = response.data[0]
-        
-        # Verificar senha
+        resp = supabase.table("users").select("*").eq("email", data['email']).execute()
+        if not resp.data: return jsonify({"error": "Email ou senha incorretos"}), 401
+        user = resp.data[0]
         if not bcrypt.checkpw(data['senha'].encode('utf-8'), user['senha'].encode('utf-8')):
             return jsonify({"error": "Email ou senha incorretos"}), 401
-        
-        # Gerar token JWT
-        token = jwt.encode({
-            'user_id': user['id'],
-            'email': user['email'],
-            'tipo': user['tipo']
-        }, app.config['SECRET_KEY'], algorithm='HS256')
-        
-        # Retornar sem senha
+        token = jwt.encode({'user_id': user['id'], 'email': user['email'], 'tipo': user['tipo']}, app.config['SECRET_KEY'], algorithm='HS256')
         del user['senha']
-        
         return jsonify({"success": True, "token": token, "user": user})
-    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/users', methods=['GET'])
-def listar_usuarios():
-    try:
-        response = supabase.table("users").select("id, nome, email, tipo, created_at").execute()
-        return jsonify(response.data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/users/<user_id>', methods=['DELETE'])
-def deletar_usuario(user_id):
-    try:
-        supabase.table("users").delete().eq("id", user_id).execute()
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Handler para Vercel
 if __name__ == '__main__':
     app.run(debug=True)

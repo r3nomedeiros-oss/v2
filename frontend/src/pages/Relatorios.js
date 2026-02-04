@@ -41,79 +41,169 @@ function Relatorios() {
   const exportarPDF = () => {
     if (!relatorio) return;
     
-    // Criar HTML para PDF
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    
+    // Criar HTML para PDF com melhor formatação
     const conteudo = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 20px; }
-            h1 { color: #1e40af; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-            th { background: #f7fafc; font-weight: 600; }
-            .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
-            .stat-box { padding: 15px; background: #f7fafc; border-left: 4px solid #1e40af; }
-          </style>
-        </head>
-        <body>
-          <h1>Relatório de Produção - ${periodo}</h1>
-          <div class="stats">
-            <div class="stat-box">
-              <strong>Produção Total:</strong> ${formatarKg(relatorio.producao_total)} kg
-            </div>
-            <div class="stat-box">
-              <strong>Perdas Totais:</strong> ${formatarKg(relatorio.perdas_total)} kg (${relatorio.percentual_perdas}%)
-            </div>
-            <div class="stat-box">
-              <strong>Média Diária:</strong> ${formatarKg(relatorio.media_diaria)} kg
-            </div>
-            <div class="stat-box">
-              <strong>Dias Produzidos:</strong> ${relatorio.dias_produzidos}
-            </div>
-          </div>
-          <h2>Detalhes por Turno</h2>
-          <table>
-            <tr>
-              <th>Turno</th>
-              <th>Produção</th>
-              <th>Perdas</th>
-              <th>% Perdas</th>
-              <th>Média Diária</th>
-            </tr>
-            <tr>
-              <td>Turno A</td>
-              <td>${formatarKg(relatorio.por_turno.A.producao)} kg</td>
-              <td>${formatarKg(relatorio.por_turno.A.perdas)} kg</td>
-              <td>${relatorio.por_turno.A.percentual_perdas}%</td>
-              <td>${formatarKg(relatorio.por_turno.A.media_diaria)} kg</td>
-            </tr>
-            <tr>
-              <td>Turno B</td>
-              <td>${formatarKg(relatorio.por_turno.B.producao)} kg</td>
-              <td>${formatarKg(relatorio.por_turno.B.perdas)} kg</td>
-              <td>${relatorio.por_turno.B.percentual_perdas}%</td>
-              <td>${formatarKg(relatorio.por_turno.B.media_diaria)} kg</td>
-            </tr>
-            <tr>
-              <td>Administrativo</td>
-              <td>${formatarKg(relatorio.por_turno.Administrativo.producao)} kg</td>
-              <td>${formatarKg(relatorio.por_turno.Administrativo.perdas)} kg</td>
-              <td>${relatorio.por_turno.Administrativo.percentual_perdas}%</td>
-              <td>${formatarKg(relatorio.por_turno.Administrativo.media_diaria)} kg</td>
-            </tr>
-          </table>
-        </body>
-      </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório de Produção</title>
+  <style>
+    @media print {
+      body { margin: 0; }
+      @page { margin: 2cm; }
+    }
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { 
+      color: #1e40af; 
+      border-bottom: 3px solid #1e40af;
+      padding-bottom: 10px;
+    }
+    .header {
+      text-align: right;
+      color: #718096;
+      margin-bottom: 20px;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 20px 0; 
+    }
+    th, td { 
+      padding: 12px; 
+      text-align: left; 
+      border-bottom: 1px solid #e2e8f0; 
+    }
+    th { 
+      background: #f7fafc; 
+      font-weight: 600;
+      color: #2d3748;
+    }
+    .stats { 
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 15px; 
+      margin: 30px 0; 
+    }
+    .stat-box { 
+      padding: 20px; 
+      background: #f7fafc; 
+      border-left: 4px solid #1e40af;
+      border-radius: 4px;
+    }
+    .stat-box strong {
+      display: block;
+      color: #718096;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .stat-box .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2d3748;
+    }
+    .turno-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 4px;
+    }
+    .turno-section h3 {
+      color: #1e40af;
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    Gerado em: ${dataAtual}
+  </div>
+  <h1>Relatório de Produção - ${periodo.charAt(0).toUpperCase() + periodo.slice(1)}</h1>
+  
+  <h2>Informações Consolidadas</h2>
+  <div class="stats">
+    <div class="stat-box">
+      <strong>Produção Total</strong>
+      <div class="value">${formatarKg(relatorio.producao_total)} kg</div>
+    </div>
+    <div class="stat-box">
+      <strong>Perdas Totais</strong>
+      <div class="value">${formatarKg(relatorio.perdas_total)} kg (${relatorio.percentual_perdas}%)</div>
+    </div>
+    <div class="stat-box">
+      <strong>Média Diária</strong>
+      <div class="value">${formatarKg(relatorio.media_diaria)} kg</div>
+    </div>
+    <div class="stat-box">
+      <strong>Dias Produzidos</strong>
+      <div class="value">${relatorio.dias_produzidos}</div>
+    </div>
+  </div>
+  
+  <h2>Detalhes por Turno</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Turno</th>
+        <th>Produção (kg)</th>
+        <th>Perdas (kg)</th>
+        <th>% Perdas</th>
+        <th>Média Diária (kg)</th>
+        <th>Dias Produzidos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Turno A</strong></td>
+        <td>${formatarKg(relatorio.por_turno.A.producao)}</td>
+        <td>${formatarKg(relatorio.por_turno.A.perdas)}</td>
+        <td>${relatorio.por_turno.A.percentual_perdas}%</td>
+        <td>${formatarKg(relatorio.por_turno.A.media_diaria)}</td>
+        <td>${relatorio.por_turno.A.dias_produzidos}</td>
+      </tr>
+      <tr>
+        <td><strong>Turno B</strong></td>
+        <td>${formatarKg(relatorio.por_turno.B.producao)}</td>
+        <td>${formatarKg(relatorio.por_turno.B.perdas)}</td>
+        <td>${relatorio.por_turno.B.percentual_perdas}%</td>
+        <td>${formatarKg(relatorio.por_turno.B.media_diaria)}</td>
+        <td>${relatorio.por_turno.B.dias_produzidos}</td>
+      </tr>
+      <tr>
+        <td><strong>Administrativo</strong></td>
+        <td>${formatarKg(relatorio.por_turno.Administrativo.producao)}</td>
+        <td>${formatarKg(relatorio.por_turno.Administrativo.perdas)}</td>
+        <td>${relatorio.por_turno.Administrativo.percentual_perdas}%</td>
+        <td>${formatarKg(relatorio.por_turno.Administrativo.media_diaria)}</td>
+        <td>${relatorio.por_turno.Administrativo.dias_produzidos}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <script>
+    window.onload = function() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
     `;
     
     const blob = new Blob([conteudo], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `relatorio_${periodo}_${new Date().toISOString().split('T')[0]}.html`;
-    a.click();
-    
-    alert('Arquivo HTML gerado! Abra-o e use Ctrl+P para imprimir como PDF');
+    const janela = window.open(url);
+    if (janela) {
+      janela.onload = () => {
+        setTimeout(() => janela.print(), 500);
+      };
+    }
   };
 
   const exportarExcel = () => {

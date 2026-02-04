@@ -5,6 +5,10 @@ import { Eye, Edit, Trash2 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
+const formatarKg = (valor) => {
+  return new Intl.NumberFormat('pt-BR').format(Math.round(valor));
+};
+
 function Lancamentos() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);

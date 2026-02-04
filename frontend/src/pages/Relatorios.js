@@ -209,24 +209,31 @@ function Relatorios() {
   const exportarExcel = () => {
     if (!relatorio) return;
     
-    // Criar CSV simples
-    let csv = 'Métrica,Valor\n';
-    csv += `Produção Total,${relatorio.producao_total} kg\n`;
-    csv += `Perdas Totais,${relatorio.perdas_total} kg\n`;
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    
+    // Criar CSV formatado profissionalmente
+    let csv = `RELATÓRIO DE PRODUÇÃO - ${periodo.toUpperCase()}\n`;
+    csv += `Gerado em: ${dataAtual}\n\n`;
+    
+    csv += `INFORMAÇÕES CONSOLIDADAS\n`;
+    csv += `Métrica,Valor\n`;
+    csv += `Produção Total,${formatarKg(relatorio.producao_total)} kg\n`;
+    csv += `Perdas Totais,${formatarKg(relatorio.perdas_total)} kg\n`;
     csv += `Percentual de Perdas,${relatorio.percentual_perdas}%\n`;
     csv += `Dias Produzidos,${relatorio.dias_produzidos}\n`;
-    csv += `Média Diária,${relatorio.media_diaria} kg\n`;
-    csv += '\n';
-    csv += 'Turno,Produção,Perdas\n';
-    csv += `Turno A,${relatorio.por_turno.A.producao} kg,${relatorio.por_turno.A.perdas} kg\n`;
-    csv += `Turno B,${relatorio.por_turno.B.producao} kg,${relatorio.por_turno.B.perdas} kg\n`;
-    csv += `Administrativo,${relatorio.por_turno.Administrativo.producao} kg,${relatorio.por_turno.Administrativo.perdas} kg\n`;
+    csv += `Média Diária,${formatarKg(relatorio.media_diaria)} kg\n\n`;
     
-    const blob = new Blob([csv], { type: 'text/csv' });
+    csv += `DETALHES POR TURNO\n`;
+    csv += `Turno,Produção (kg),Perdas (kg),% Perdas,Média Diária (kg),Dias Produzidos\n`;
+    csv += `Turno A,${formatarKg(relatorio.por_turno.A.producao)},${formatarKg(relatorio.por_turno.A.perdas)},${relatorio.por_turno.A.percentual_perdas}%,${formatarKg(relatorio.por_turno.A.media_diaria)},${relatorio.por_turno.A.dias_produzidos}\n`;
+    csv += `Turno B,${formatarKg(relatorio.por_turno.B.producao)},${formatarKg(relatorio.por_turno.B.perdas)},${relatorio.por_turno.B.percentual_perdas}%,${formatarKg(relatorio.por_turno.B.media_diaria)},${relatorio.por_turno.B.dias_produzidos}\n`;
+    csv += `Administrativo,${formatarKg(relatorio.por_turno.Administrativo.producao)},${formatarKg(relatorio.por_turno.Administrativo.perdas)},${relatorio.por_turno.Administrativo.percentual_perdas}%,${formatarKg(relatorio.por_turno.Administrativo.media_diaria)},${relatorio.por_turno.Administrativo.dias_produzidos}\n`;
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `relatorio_${periodo}_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `relatorio_${periodo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
     a.click();
   };
 

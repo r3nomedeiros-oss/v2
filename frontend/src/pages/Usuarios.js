@@ -16,9 +16,11 @@ function Usuarios() {
   const carregarUsuarios = async () => {
     try {
       const response = await axios.get(`${API_URL}/users`);
-      setUsuarios(response.data);
+      // Garantir que temos um array
+      setUsuarios(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -27,6 +29,11 @@ function Usuarios() {
   const deletarUsuario = async (id) => {
     if (currentUser.tipo !== 'Administrador') {
       alert('Apenas administradores podem excluir usuários');
+      return;
+    }
+
+    if (id === currentUser.id) {
+      alert('Você não pode excluir seu próprio usuário');
       return;
     }
 
@@ -39,11 +46,13 @@ function Usuarios() {
       alert('Usuário excluído com sucesso!');
       carregarUsuarios();
     } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
       alert('Erro ao excluir usuário');
     }
   };
 
   const formatarData = (data) => {
+    if (!data) return '-';
     return new Date(data).toLocaleDateString('pt-BR');
   };
 
@@ -71,36 +80,44 @@ function Usuarios() {
               </tr>
             </thead>
             <tbody>
-              {usuarios.map((user) => (
-                <tr key={user.id}>
-                  <td>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                      {user.tipo === 'Administrador' ? <Shield size={16} color="#1e40af" /> : <UserCheck size={16} color="#48bb78" />}
-                      <span style={{fontWeight: '600'}}>{user.nome}</span>
-                    </div>
+              {usuarios.length === 0 ? (
+                <tr>
+                  <td colSpan={currentUser.tipo === 'Administrador' ? 5 : 4} style={{textAlign: 'center', padding: '30px'}}>
+                    Nenhum usuário encontrado.
                   </td>
-                  <td>{user.email}</td>
-                  <td>
-                    <span className={`badge ${user.tipo === 'Administrador' ? 'badge-danger' : 'badge-success'}`}>
-                      {user.tipo}
-                    </span>
-                  </td>
-                  <td>{formatarData(user.created_at)}</td>
-                  {currentUser.tipo === 'Administrador' && (
-                    <td>
-                      {user.id !== currentUser.id && (
-                        <button
-                          onClick={() => deletarUsuario(user.id)}
-                          className="btn btn-danger"
-                          style={{padding: '6px 12px'}}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </td>
-                  )}
                 </tr>
-              ))}
+              ) : (
+                usuarios.map((user) => (
+                  <tr key={user.id}>
+                    <td>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        {user.tipo === 'Administrador' ? <Shield size={16} color="#1e40af" /> : <UserCheck size={16} color="#48bb78" />}
+                        <span style={{fontWeight: '600'}}>{user.nome}</span>
+                      </div>
+                    </td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span className={`badge ${user.tipo === 'Administrador' ? 'badge-danger' : 'badge-success'}`}>
+                        {user.tipo}
+                      </span>
+                    </td>
+                    <td>{formatarData(user.created_at)}</td>
+                    {currentUser.tipo === 'Administrador' && (
+                      <td>
+                        {user.id !== currentUser.id && (
+                          <button
+                            onClick={() => deletarUsuario(user.id)}
+                            className="btn btn-danger"
+                            style={{padding: '8px 12px'}}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

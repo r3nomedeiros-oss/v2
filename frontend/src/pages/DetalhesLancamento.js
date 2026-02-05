@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Calendar, Clock, Package } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Package, MessageCircle, Edit } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -48,6 +48,43 @@ function DetalhesLancamento() {
     return { producao, perdas, percentual: percentual.toFixed(2) };
   };
 
+  const compartilharWhatsApp = () => {
+    if (!lancamento) return;
+
+    const totais = calcularTotais();
+    const data = formatarData(lancamento.data);
+
+    // Construir mensagem compacta e bem formatada
+    let mensagem = `📊 *RELATÓRIO DE PRODUÇÃO*\n\n`;
+    mensagem += `📅 Data: ${data}\n`;
+    mensagem += `⏰ Turno: ${lancamento.turno}\n`;
+    mensagem += `🕐 Hora: ${lancamento.hora}\n\n`;
+    
+    mensagem += `*RESUMO DE PRODUÇÃO*\n`;
+    mensagem += `✅ Produção Total: ${formatarKg(totais.producao)} kg\n`;
+    mensagem += `❌ Orelha: ${formatarKg(parseFloat(lancamento.orelha_kg))} kg\n`;
+    mensagem += `❌ Aparas: ${formatarKg(parseFloat(lancamento.aparas_kg))} kg\n`;
+    mensagem += `⚠️ Perdas Totais: ${formatarKg(totais.perdas)} kg (${totais.percentual}%)\n\n`;
+
+    mensagem += `*ITENS PRODUZIDOS*\n`;
+    if (lancamento.itens && lancamento.itens.length > 0) {
+      lancamento.itens.forEach((item, index) => {
+        mensagem += `${index + 1}. ${item.formato} - ${item.cor}\n`;
+        mensagem += `   📦 Pacote: ${parseFloat(item.pacote_kg).toFixed(2)} kg\n`;
+        mensagem += `   🏭 Produção: ${parseFloat(item.producao_kg).toFixed(2)} kg\n`;
+      });
+    } else {
+      mensagem += `Nenhum item registrado\n`;
+    }
+
+    // Codificar a mensagem para URL
+    const mensagemCodificada = encodeURIComponent(mensagem);
+    
+    // Abrir WhatsApp Web ou App
+    const urlWhatsApp = `https://wa.me/?text=${mensagemCodificada}`;
+    window.open(urlWhatsApp, '_blank');
+  };
+
   if (loading) {
     return <div className="loading">Carregando...</div>;
   }
@@ -60,9 +97,17 @@ function DetalhesLancamento() {
 
   return (
     <div>
-      <button onClick={() => navigate('/lancamentos')} className="btn btn-secondary" style={{marginBottom: '20px'}}>
-        <ArrowLeft size={16} /> Voltar
-      </button>
+      <div style={{display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap'}}>
+        <button onClick={() => navigate('/lancamentos')} className="btn btn-secondary">
+          <ArrowLeft size={16} /> Voltar
+        </button>
+        <button onClick={() => navigate(`/lancamentos/${id}/editar`)} className="btn btn-primary">
+          <Edit size={16} /> Editar
+        </button>
+        <button onClick={compartilharWhatsApp} className="btn" style={{background: '#25D366', color: 'white'}}>
+          <MessageCircle size={16} /> Compartilhar WhatsApp
+        </button>
+      </div>
 
       <div className="page-header">
         <h1>Detalhes do Lançamento</h1>

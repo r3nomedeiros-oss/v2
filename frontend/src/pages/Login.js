@@ -40,49 +40,14 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
-      zIndex: 9999,
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '12px',
-        padding: '40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-        width: '90%',
-        maxWidth: '450px',
-        textAlign: 'center'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
-            borderRadius: '50%',
-            margin: '0 auto 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-header">
+          <div className="login-logo">
             <Factory size={40} color="white" />
           </div>
-          <h1 style={{ fontSize: '28px', color: '#2d3748', marginBottom: '10px', fontWeight: '700' }}>
-            {isRegister ? 'Criar Conta' : 'Bem-vindo'}
-          </h1>
-          <p style={{ color: '#718096', marginBottom: '0' }}>
-            Sistema de Controle de Produção - PolyTrack
-          </p>
+          <h1>{isRegister ? 'Criar Conta' : 'Bem-vindo'}</h1>
+          <p>Sistema de Controle de Produção - PolyTrack</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>

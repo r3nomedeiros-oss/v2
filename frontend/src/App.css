@@ -6,7 +6,7 @@
 
 /* Padronização de Zoom e Layout */
 html {
-  zoom: 0.9; /* Padroniza o zoom para 90% para melhor visualização em diferentes telas */
+  zoom: 0.9;
 }
 
 body {
@@ -16,6 +16,8 @@ body {
   background: #f5f7fa;
   font-size: 16px;
   overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Remover setas de inputs numéricos */
@@ -32,6 +34,7 @@ input[type=number] {
 .app-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
 .sidebar {
@@ -97,6 +100,7 @@ input[type=number] {
   margin-left: 250px;
   padding: 30px;
   width: calc(100% - 250px);
+  min-height: 100vh;
 }
 
 .page-header {
@@ -344,54 +348,20 @@ table tbody tr:hover {
   color: #742a2a;
 }
 
-/* Responsivo */
-@media (max-width: 768px) {
-  html { zoom: 1; } /* Reset zoom on mobile */
-  
-  .sidebar {
-    width: 70px;
-    padding: 15px 10px;
-  }
-  
-  .sidebar-header h2,
-  .sidebar .nav-item span,
-  .sidebar > div:nth-child(2) {
-    display: none;
-  }
-  
-  .main-content {
-    margin-left: 70px;
-    width: calc(100% - 70px);
-    padding: 15px;
-  }
-  
-  .page-header h1 {
-    font-size: 26px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .actions {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
 /* Estilos para a Página de Login Centralizada */
 .login-page {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   padding: 20px;
-  width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 9999;
+  overflow: hidden;
 }
 
 .login-card {
@@ -425,4 +395,39 @@ table tbody tr:hover {
 .login-header p {
   color: #718096;
   margin-bottom: 30px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  html { zoom: 1; }
+  
+  .sidebar {
+    width: 70px;
+    padding: 15px 10px;
+  }
+  
+  .sidebar-header h2,
+  .sidebar .nav-item span,
+  .sidebar > div:nth-child(2) {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    padding: 15px;
+  }
+  
+  .page-header h1 {
+    font-size: 26px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+    gap: 5px;
+  }
 }

@@ -67,7 +67,7 @@ function Navigation({ user, onLogout }) {
           {isSidebarOpen && <span>Usuários</span>}
         </Link>
         
-        <button onClick={onLogout} className="nav-item" style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left'}}>
+        <button onClick={onLogout} className="nav-item" style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left', width: '100%'}}>
           <LogOut size={20} />
           {isSidebarOpen && <span>Sair</span>}
         </button>
@@ -78,6 +78,7 @@ function Navigation({ user, onLogout }) {
 
 function AppContent() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -85,6 +86,7 @@ function AppContent() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    setLoading(false);
   }, []);
 
   const handleLogin = (userData) => {
@@ -95,17 +97,29 @@ function AppContent() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    // Forçar recarregamento para limpar estados e evitar problemas de cache
     window.location.href = '/login';
   };
 
+  if (loading) return <div className="loading">Carregando...</div>;
+
   const isLoginPage = location.pathname === '/login';
+
+  // Se for página de login, renderiza sem o container principal que tem margens/sidebar
+  if (isLoginPage) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="app-container">
-      {!isLoginPage && <Navigation user={user} onLogout={handleLogout} />}
-      <div className={isLoginPage ? '' : 'main-content'}>
+      <Navigation user={user} onLogout={handleLogout} />
+      <div className="main-content">
         <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/novo-lancamento" element={<ProtectedRoute><NovoLancamento /></ProtectedRoute>} />
           <Route path="/lancamentos" element={<ProtectedRoute><Lancamentos /></ProtectedRoute>} />
@@ -113,6 +127,7 @@ function AppContent() {
           <Route path="/lancamentos/:id/editar" element={<ProtectedRoute><EditarLancamento /></ProtectedRoute>} />
           <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
           <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </div>

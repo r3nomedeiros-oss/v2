@@ -61,7 +61,6 @@ def criar_lancamento():
 @app.route('/api/lancamentos', methods=['GET'])
 def listar_lancamentos():
     try:
-        # Otimização: Buscar lançamentos e itens em apenas 2 queries
         resp_lanc = supabase.table("lancamentos").select("*").order("data", desc=True).order("hora", desc=True).limit(100).execute()
         lancamentos = resp_lanc.data
         
@@ -92,6 +91,32 @@ def listar_lancamentos():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/lancamentos/<id>', methods=['GET'])
+def obter_lancamento(id):
+    try:
+        resp_lanc = supabase.table("lancamentos").select("*").eq("id", id).execute()
+        if not resp_lanc.data:
+            return jsonify({"error": "Lançamento não encontrado"}), 404
+        
+        lancamento = resp_lanc.data[0]
+        resp_itens = supabase.table("itens_producao").select("*").eq("lancamento_id", id).execute()
+        lancamento['itens'] = resp_itens.data
+        
+        return jsonify(lancamento)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/lancamentos/<id>', methods=['DELETE'])
+def deletar_lancamento(id):
+    try:
+        # Primeiro deletar os itens vinculados (integridade referencial)
+        supabase.table("itens_producao").delete().eq("lancamento_id", id).execute()
+        # Depois deletar o lançamento
+        supabase.table("lancamentos").delete().eq("id", id).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/relatorios', methods=['GET'])
 def gerar_relatorio():
     try:
@@ -112,7 +137,6 @@ def gerar_relatorio():
         elif periodo == 'anual':
             data_inicio = hoje.replace(month=1, day=1).isoformat()
             data_fim = hoje.replace(month=12, day=31).isoformat()
-        # Se for customizado, usa as datas recebidas via args
         
         query = supabase.table("lancamentos").select("*")
         if data_inicio: query = query.gte("data", data_inicio)

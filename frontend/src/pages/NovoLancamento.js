@@ -141,15 +141,15 @@ function NovoLancamento() {
           </div>
 
           {lancamento.itens.map((item, index) => (
-            <div key={index} className="item-row" style={{position: 'relative'}}>
+            <div key={index} style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '12px', alignItems: 'end', background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '12px', border: '1px solid #e2e8f0', position: 'relative'}}>
               {lancamento.itens.length > 1 && (
                 <button
                   type="button"
                   className="btn btn-danger"
                   onClick={() => removerItem(index)}
-                  style={{position: 'absolute', top: '10px', right: '10px'}}
+                  style={{padding: '8px 10px'}}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={14} />
                 </button>
               )}
               

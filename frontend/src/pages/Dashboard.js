@@ -95,10 +95,10 @@ function Dashboard() {
 
         <div className="stat-card">
           <h3>Período</h3>
-          <div className="value">Mensal</div>
-          <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
-            <Calendar size={16} style={{display: 'inline', marginRight: '5px'}} />
-            Últimos 30 dias
+          <div className="value" style={{fontSize: '24px'}}>Mensal</div>
+          <div className="subtitle" style={{fontSize: '13px', fontWeight: '600', color: '#4a5568'}}>
+            <Calendar size={14} style={{display: 'inline', marginRight: '5px'}} />
+            {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^./, c => c.toUpperCase())}
           </div>
         </div>
       </div>

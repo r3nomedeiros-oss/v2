@@ -27,13 +27,13 @@ function Dashboard() {
       ]);
       setStats(statsResponse.data);
       
-      // Últimos 7 dias
+      // Últimos 7 dias (incluindo hoje)
       const hoje = new Date();
       const seteDiasAtras = new Date();
-      seteDiasAtras.setDate(hoje.getDate() - 7);
+      seteDiasAtras.setDate(hoje.getDate() - 6); // -6 para incluir 7 dias (hoje + 6 anteriores)
       
       const ultimos7Dias = lancamentosResponse.data.filter(lanc => {
-        const dataLanc = new Date(lanc.data);
+        const dataLanc = new Date(lanc.data + 'T00:00:00'); // Adicionar hora para evitar problemas de timezone
         return dataLanc >= seteDiasAtras && dataLanc <= hoje;
       });
       
@@ -46,12 +46,26 @@ function Dashboard() {
   };
 
   const prepararDadosGrafico = () => {
-    return lancamentos.map(lanc => ({
-      data: new Date(lanc.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      producao: lanc.producao_total,
-      perdas: lanc.perdas_total,
-      turno: lanc.turno
-    })).reverse();
+    // Agrupar lançamentos por data e somar produção e perdas
+    const dadosPorDia = {};
+    
+    lancamentos.forEach(lanc => {
+      const data = new Date(lanc.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      if (!dadosPorDia[data]) {
+        dadosPorDia[data] = { data, producao: 0, perdas: 0 };
+      }
+      dadosPorDia[data].producao += parseFloat(lanc.producao_total) || 0;
+      dadosPorDia[data].perdas += parseFloat(lanc.perdas_total) || 0;
+    });
+    
+    // Ordenar por data
+    return Object.values(dadosPorDia).sort((a, b) => {
+      const [diaA, mesA] = a.data.split('/');
+      const [diaB, mesB] = b.data.split('/');
+      const dataA = new Date(`2026-${mesA}-${diaA}`);
+      const dataB = new Date(`2026-${mesB}-${diaB}`);
+      return dataA - dataB;
+    });
   };
 
   if (loading) {

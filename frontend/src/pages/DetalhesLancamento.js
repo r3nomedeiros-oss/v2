@@ -54,11 +54,13 @@ function DetalhesLancamento() {
     if (!detalhesRef.current) return;
 
     try {
-      // Capturar a imagem do elemento
+      // Capturar a imagem do elemento com dimensões otimizadas para mobile
       const canvas = await html2canvas(detalhesRef.current, {
         backgroundColor: '#ffffff',
-        scale: 2,
-        logging: false
+        scale: 1.5,
+        logging: false,
+        width: 400,
+        windowHeight: 600
       });
 
       // Converter para blob
@@ -69,14 +71,9 @@ function DetalhesLancamento() {
         // Criar link para download
         const link = document.createElement('a');
         link.href = url;
-        link.download = `relatorio_producao_${lancamento.data}.png`;
+        link.download = `relatorio_${lancamento.data}.png`;
         
-        // Abrir WhatsApp Web com a imagem
-        // Nota: WhatsApp Web não suporta envio direto de imagens via URL
-        // Então vamos abrir o WhatsApp e o usuário pode colar a imagem manualmente
-        // Alternativa: usar a API do WhatsApp Business (requer configuração)
-        
-        // Por enquanto, vamos fazer download e abrir WhatsApp
+        // Fazer download da imagem
         link.click();
         URL.revokeObjectURL(url);
         
@@ -115,72 +112,62 @@ function DetalhesLancamento() {
         </button>
       </div>
 
-      <div ref={detalhesRef} style={{background: 'white', padding: '20px', borderRadius: '12px', marginBottom: '20px'}}>
-        <div className="page-header" style={{marginBottom: '20px'}}>
-          <h1 style={{fontSize: '24px', marginBottom: '8px'}}>Detalhes do Lançamento</h1>
-          <p style={{fontSize: '14px'}}>{formatarData(lancamento.data)} - Turno {lancamento.turno} - {lancamento.hora}</p>
+      <div ref={detalhesRef} style={{background: 'white', padding: '16px', borderRadius: '12px', marginBottom: '20px', maxWidth: '500px'}}>
+        <div style={{textAlign: 'center', marginBottom: '16px', borderBottom: '2px solid #1e40af', paddingBottom: '12px'}}>
+          <h2 style={{fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: '0 0 4px 0'}}>RELATÓRIO DE PRODUÇÃO</h2>
+          <p style={{fontSize: '12px', color: '#4a5568', margin: '0', fontWeight: '600'}}>{formatarData(lancamento.data)} • Turno {lancamento.turno}</p>
+          <p style={{fontSize: '11px', color: '#718096', margin: '4px 0 0 0'}}>{lancamento.hora}</p>
         </div>
 
-        <div className="stats-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px'}}>
-          <div className="stat-card" style={{background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '4px solid #1e40af', padding: '15px', borderRadius: '10px'}}>
-            <h3 style={{fontSize: '11px', color: '#4a5568', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '700'}}>Produção Total</h3>
-            <div style={{fontSize: '22px', fontWeight: '800', color: '#1a202c', marginBottom: '5px'}}>{formatarKg(totais.producao)} kg</div>
-            <div style={{fontSize: '12px', color: '#4a5568', fontWeight: '600'}}>
-              <Package size={12} style={{display: 'inline', marginRight: '4px'}} />
-              {lancamento.itens?.length || 0} itens
+        <div style={{marginBottom: '14px'}}>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px'}}>
+            <div style={{background: '#f0f4ff', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #1e40af'}}>
+              <p style={{fontSize: '11px', color: '#4a5568', margin: '0 0 4px 0', fontWeight: '700', textTransform: 'uppercase'}}>Produção Total</p>
+              <p style={{fontSize: '18px', fontWeight: '800', color: '#1a202c', margin: '0'}}>{formatarKg(totais.producao)} kg</p>
+            </div>
+            <div style={{background: '#fff5f5', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f56565'}}>
+              <p style={{fontSize: '11px', color: '#4a5568', margin: '0 0 4px 0', fontWeight: '700', textTransform: 'uppercase'}}>Perdas Totais</p>
+              <p style={{fontSize: '18px', fontWeight: '800', color: '#1a202c', margin: '0'}}>{formatarKg(totais.perdas)} kg ({totais.percentual}%)</p>
             </div>
           </div>
 
-          <div className="stat-card" style={{background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '4px solid #1e40af', padding: '15px', borderRadius: '10px'}}>
-            <h3 style={{fontSize: '11px', color: '#4a5568', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '700'}}>Orelha</h3>
-            <div style={{fontSize: '22px', fontWeight: '800', color: '#1a202c'}}>{formatarKg(parseFloat(lancamento.orelha_kg))} kg</div>
-          </div>
-
-          <div className="stat-card" style={{background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '4px solid #1e40af', padding: '15px', borderRadius: '10px'}}>
-            <h3 style={{fontSize: '11px', color: '#4a5568', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '700'}}>Aparas</h3>
-            <div style={{fontSize: '22px', fontWeight: '800', color: '#1a202c'}}>{formatarKg(parseFloat(lancamento.aparas_kg))} kg</div>
-          </div>
-
-          <div className="stat-card" style={{background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '4px solid #1e40af', padding: '15px', borderRadius: '10px'}}>
-            <h3 style={{fontSize: '11px', color: '#4a5568', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '700'}}>Perdas Totais</h3>
-            <div style={{fontSize: '22px', fontWeight: '800', color: '#1a202c'}}>{formatarKg(totais.perdas)} kg</div>
-            <div style={{fontSize: '12px', color: '#4a5568', fontWeight: '600'}}>{totais.percentual}% da produção</div>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+            <div style={{background: '#f0fdf4', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #48bb78'}}>
+              <p style={{fontSize: '11px', color: '#4a5568', margin: '0 0 4px 0', fontWeight: '700', textTransform: 'uppercase'}}>Orelha</p>
+              <p style={{fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: '0'}}>{formatarKg(parseFloat(lancamento.orelha_kg))} kg</p>
+            </div>
+            <div style={{background: '#fef3c7', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f59e0b'}}>
+              <p style={{fontSize: '11px', color: '#4a5568', margin: '0 0 4px 0', fontWeight: '700', textTransform: 'uppercase'}}>Aparas</p>
+              <p style={{fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: '0'}}>{formatarKg(parseFloat(lancamento.aparas_kg))} kg</p>
+            </div>
           </div>
         </div>
 
-        <div style={{background: 'white', borderRadius: '10px', border: '1px solid #e2e8f0', padding: '15px'}}>
-          <h2 style={{fontSize: '16px', fontWeight: '800', color: '#1a202c', marginBottom: '12px'}}>Itens de Produção</h2>
+        <div style={{borderTop: '2px solid #e2e8f0', paddingTop: '12px'}}>
+          <h3 style={{fontSize: '12px', fontWeight: '800', color: '#1a202c', margin: '0 0 10px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
           
           {lancamento.itens && lancamento.itens.length > 0 ? (
-            <div style={{overflowX: 'auto'}}>
-              <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                <thead>
-                  <tr style={{background: '#f8fafc'}}>
-                    <th style={{padding: '10px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#1a202c', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0'}}>Formato</th>
-                    <th style={{padding: '10px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#1a202c', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0'}}>Cor</th>
-                    <th style={{padding: '10px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#1a202c', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0'}}>Pacote (kg)</th>
-                    <th style={{padding: '10px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#1a202c', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0'}}>Produção (kg)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lancamento.itens.map((item, index) => (
-                    <tr key={index} style={{borderBottom: '1px solid #e2e8f0'}}>
-                      <td style={{padding: '10px', fontSize: '13px', color: '#1a202c'}}>{item.formato}</td>
-                      <td style={{padding: '10px', fontSize: '13px', color: '#1a202c'}}>{item.cor}</td>
-                      <td style={{padding: '10px', fontSize: '13px', color: '#1a202c'}}>{parseFloat(item.pacote_kg).toFixed(2)}</td>
-                      <td style={{padding: '10px', fontSize: '13px', color: '#48bb78', fontWeight: '600'}}>
-                        {parseFloat(item.producao_kg).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+              {lancamento.itens.map((item, index) => (
+                <div key={index} style={{background: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '11px'}}>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '6px'}}>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Formato:</span> <span style={{color: '#4a5568'}}>{item.formato}</span></div>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Cor:</span> <span style={{color: '#4a5568'}}>{item.cor}</span></div>
+                  </div>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Pacote:</span> <span style={{color: '#4a5568'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
+                    <div><span style={{fontWeight: '700', color: '#48bb78'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
-            <div style={{textAlign: 'center', padding: '30px', color: '#4a5568'}}>
-              <p>Nenhum item de produção registrado</p>
-            </div>
+            <p style={{fontSize: '12px', color: '#4a5568', margin: '0'}}>Nenhum item registrado</p>
           )}
+        </div>
+
+        <div style={{textAlign: 'center', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', fontSize: '10px', color: '#718096'}}>
+          <p style={{margin: '0'}}>Sistema de Controle de Produção</p>
         </div>
       </div>
     </div>

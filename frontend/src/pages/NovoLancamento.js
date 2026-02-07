@@ -141,20 +141,9 @@ function NovoLancamento() {
           </div>
 
           {lancamento.itens.map((item, index) => (
-            <div key={index} style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '12px', alignItems: 'end', background: '#f8fafc', padding: '15px', borderRadius: '10px', marginBottom: '12px', border: '1px solid #e2e8f0', position: 'relative'}}>
-              {lancamento.itens.length > 1 && (
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => removerItem(index)}
-                  style={{padding: '8px 10px'}}
-                >
-                  <Trash2 size={14} />
-                </button>
-              )}
-              
-              <div className="form-group">
-                <label>Formato</label>
+            <div key={index} style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 36px', gap: '10px', alignItems: 'end', background: '#f8fafc', padding: '12px', borderRadius: '8px', marginBottom: '10px', border: '1px solid #e2e8f0'}}>
+              <div className="form-group" style={{marginBottom: '0'}}>
+                <label style={{fontSize: '12px', marginBottom: '4px'}}>Formato</label>
                 <input
                   type="text"
                   className="form-control"
@@ -162,11 +151,12 @@ function NovoLancamento() {
                   onChange={(e) => atualizarItem(index, 'formato', e.target.value)}
                   required
                   placeholder="Ex: 30x40"
+                  style={{fontSize: '12px', padding: '8px'}}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Cor</label>
+              <div className="form-group" style={{marginBottom: '0'}}>
+                <label style={{fontSize: '12px', marginBottom: '4px'}}>Cor</label>
                 <input
                   type="text"
                   className="form-control"
@@ -174,11 +164,12 @@ function NovoLancamento() {
                   onChange={(e) => atualizarItem(index, 'cor', e.target.value)}
                   required
                   placeholder="Ex: Azul"
+                  style={{fontSize: '12px', padding: '8px'}}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Pacote (kg)</label>
+              <div className="form-group" style={{marginBottom: '0'}}>
+                <label style={{fontSize: '12px', marginBottom: '4px'}}>Pacote (kg)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -187,11 +178,12 @@ function NovoLancamento() {
                   onChange={(e) => atualizarItem(index, 'pacote_kg', e.target.value)}
                   required
                   placeholder="0,00"
+                  style={{fontSize: '12px', padding: '8px'}}
                 />
               </div>
 
-              <div className="form-group">
-                <label>Produção (kg)</label>
+              <div className="form-group" style={{marginBottom: '0'}}>
+                <label style={{fontSize: '12px', marginBottom: '4px'}}>Produção (kg)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -200,8 +192,21 @@ function NovoLancamento() {
                   onChange={(e) => atualizarItem(index, 'producao_kg', e.target.value)}
                   required
                   placeholder="0,00"
+                  style={{fontSize: '12px', padding: '8px'}}
                 />
               </div>
+
+              {lancamento.itens.length > 1 && (
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => removerItem(index)}
+                  style={{padding: '8px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '36px'}}
+                  title="Remover item"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
             </div>
           ))}
         </div>

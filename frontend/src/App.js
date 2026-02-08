@@ -28,51 +28,80 @@ function Navigation({ user, onLogout }) {
   };
 
   return (
-    <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header">
-        <Factory size={32} />
-        {isSidebarOpen && <h2>Controle de Produção</h2>}
+    <>
+      <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <Factory size={32} />
+          {isSidebarOpen && <h2>Controle de Produção</h2>}
+        </div>
+        
+        {isSidebarOpen && user && (
+          <div style={{padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', marginBottom: '20px'}}>
+            <div style={{fontSize: '14px', fontWeight: '600'}}>{user.nome}</div>
+            <div style={{fontSize: '12px', opacity: 0.8}}>{user.tipo}</div>
+          </div>
+        )}
+        
+        <nav className="sidebar-nav">
+          <Link to="/" className={`nav-item ${isActive('/')}`}>
+            <BarChart3 size={20} />
+            {isSidebarOpen && <span>Dashboard</span>}
+          </Link>
+          
+          <Link to="/novo-lancamento" className={`nav-item ${isActive('/novo-lancamento')}`}>
+            <PlusCircle size={20} />
+            {isSidebarOpen && <span>Novo Lançamento</span>}
+          </Link>
+          
+          <Link to="/lancamentos" className={`nav-item ${isActive('/lancamentos')}`}>
+            <ClipboardList size={20} />
+            {isSidebarOpen && <span>Lançamentos</span>}
+          </Link>
+          
+          <Link to="/relatorios" className={`nav-item ${isActive('/relatorios')}`}>
+            <BarChart3 size={20} />
+            {isSidebarOpen && <span>Relatórios</span>}
+          </Link>
+          
+          <Link to="/usuarios" className={`nav-item ${isActive('/usuarios')}`}>
+            <Users size={20} />
+            {isSidebarOpen && <span>Usuários</span>}
+          </Link>
+          
+          <button onClick={onLogout} className="nav-item" style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left', width: '100%'}}>
+            <LogOut size={20} />
+            {isSidebarOpen && <span>Sair</span>}
+          </button>
+        </nav>
       </div>
       
-      {isSidebarOpen && user && (
-        <div style={{padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', marginBottom: '20px'}}>
-          <div style={{fontSize: '14px', fontWeight: '600'}}>{user.nome}</div>
-          <div style={{fontSize: '12px', opacity: 0.8}}>{user.tipo}</div>
-        </div>
-      )}
-      
-      <nav className="sidebar-nav">
-        <Link to="/" className={`nav-item ${isActive('/')}`}>
-          <BarChart3 size={20} />
-          {isSidebarOpen && <span>Dashboard</span>}
+      <nav className="mobile-nav">
+        <Link to="/" className={`mobile-nav-item ${isActive('/')}`}>
+          <BarChart3 size={18} />
+          <span>Dashboard</span>
         </Link>
         
-        <Link to="/novo-lancamento" className={`nav-item ${isActive('/novo-lancamento')}`}>
-          <PlusCircle size={20} />
-          {isSidebarOpen && <span>Novo Lançamento</span>}
+        <Link to="/novo-lancamento" className={`mobile-nav-item ${isActive('/novo-lancamento')}`}>
+          <PlusCircle size={18} />
+          <span>Novo</span>
         </Link>
         
-        <Link to="/lancamentos" className={`nav-item ${isActive('/lancamentos')}`}>
-          <ClipboardList size={20} />
-          {isSidebarOpen && <span>Lançamentos</span>}
+        <Link to="/lancamentos" className={`mobile-nav-item ${isActive('/lancamentos')}`}>
+          <ClipboardList size={18} />
+          <span>Lançamentos</span>
         </Link>
         
-        <Link to="/relatorios" className={`nav-item ${isActive('/relatorios')}`}>
-          <BarChart3 size={20} />
-          {isSidebarOpen && <span>Relatórios</span>}
+        <Link to="/relatorios" className={`mobile-nav-item ${isActive('/relatorios')}`}>
+          <BarChart3 size={18} />
+          <span>Relatórios</span>
         </Link>
         
-        <Link to="/usuarios" className={`nav-item ${isActive('/usuarios')}`}>
-          <Users size={20} />
-          {isSidebarOpen && <span>Usuários</span>}
-        </Link>
-        
-        <button onClick={onLogout} className="nav-item" style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left', width: '100%'}}>
-          <LogOut size={20} />
-          {isSidebarOpen && <span>Sair</span>}
+        <button onClick={onLogout} className="mobile-nav-item" style={{background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer'}}>
+          <LogOut size={18} />
+          <span>Sair</span>
         </button>
       </nav>
-    </div>
+    </>
   );
 }
 

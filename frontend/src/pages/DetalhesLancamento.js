@@ -77,20 +77,22 @@ function DetalhesLancamento() {
         link.click();
         URL.revokeObjectURL(url);
         
-        // Abrir WhatsApp direto (app ou web)
+        // Abrir WhatsApp direto (app ou web) com intent
         setTimeout(() => {
-          // Tenta abrir o app do WhatsApp primeiro
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
           if (isMobile) {
-            // No mobile, tenta abrir o app
-            window.location.href = 'whatsapp://';
-            // Se não funcionar, abre o web em 2 segundos
+            // No mobile, tenta abrir o app com intent
+            // Primeiro tenta o protocolo whatsapp://
+            const whatsappLink = 'whatsapp://send?text=Compartilhando%20relat%C3%B3rio%20de%20produ%C3%A7%C3%A3o';
+            window.location.href = whatsappLink;
+            
+            // Se não funcionar em 3 segundos, tenta web.whatsapp.com
             setTimeout(() => {
-              window.open('https://web.whatsapp.com/', '_blank');
-            }, 2000);
+              window.location.href = 'https://web.whatsapp.com/';
+            }, 3000);
           } else {
             // No desktop, abre o web direto
-            window.open('https://web.whatsapp.com/', '_blank');
+            window.location.href = 'https://web.whatsapp.com/';
           }
         }, 500);
       });
@@ -156,19 +158,19 @@ function DetalhesLancamento() {
         </div>
 
         <div style={{borderTop: '2px solid #e2e8f0', paddingTop: '12px'}}>
-          <h3 style={{fontSize: '12px', fontWeight: '800', color: '#1a202c', margin: '0 0 10px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
+          <h3 style={{fontSize: '14px', fontWeight: '800', color: '#1a202c', margin: '0 0 12px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
           
           {lancamento.itens && lancamento.itens.length > 0 ? (
-            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
               {lancamento.itens.map((item, index) => (
-                <div key={index} style={{background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px'}}>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Formato:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{item.formato}</span></div>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Cor:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{item.cor}</span></div>
+                <div key={index} style={{background: '#f8fafc', padding: '14px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '15px'}}>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px'}}>
+                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Formato:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{item.formato}</span></div>
+                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Cor:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{item.cor}</span></div>
                   </div>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Pacote:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
-                    <div><span style={{fontWeight: '700', color: '#48bb78'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700', fontSize: '14px'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Pacote:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
+                    <div><span style={{fontWeight: '700', color: '#48bb78', fontSize: '14px'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700', fontSize: '16px'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
                   </div>
                 </div>
               ))}

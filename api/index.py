@@ -334,5 +334,12 @@ def deletar_usuario(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Configurar headers para cache no cliente
+@app.after_request
+def add_cache_headers(response):
+    if request.path.startswith('/api/lancamentos') or request.path.startswith('/api/relatorios'):
+        response.headers['Cache-Control'] = 'public, max-age=60'
+    return response
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, threaded=True)

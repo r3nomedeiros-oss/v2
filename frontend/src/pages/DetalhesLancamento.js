@@ -77,9 +77,21 @@ function DetalhesLancamento() {
         link.click();
         URL.revokeObjectURL(url);
         
-        // Abrir WhatsApp Web
+        // Abrir WhatsApp direto (app ou web)
         setTimeout(() => {
-          window.open('https://web.whatsapp.com/', '_blank');
+          // Tenta abrir o app do WhatsApp primeiro
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          if (isMobile) {
+            // No mobile, tenta abrir o app
+            window.location.href = 'whatsapp://';
+            // Se não funcionar, abre o web em 2 segundos
+            setTimeout(() => {
+              window.open('https://web.whatsapp.com/', '_blank');
+            }, 2000);
+          } else {
+            // No desktop, abre o web direto
+            window.open('https://web.whatsapp.com/', '_blank');
+          }
         }, 500);
       });
     } catch (error) {
@@ -149,14 +161,14 @@ function DetalhesLancamento() {
           {lancamento.itens && lancamento.itens.length > 0 ? (
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
               {lancamento.itens.map((item, index) => (
-                <div key={index} style={{background: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '11px'}}>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '6px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Formato:</span> <span style={{color: '#4a5568'}}>{item.formato}</span></div>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Cor:</span> <span style={{color: '#4a5568'}}>{item.cor}</span></div>
+                <div key={index} style={{background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px'}}>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px'}}>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Formato:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{item.formato}</span></div>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Cor:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{item.cor}</span></div>
                   </div>
                   <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Pacote:</span> <span style={{color: '#4a5568'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
-                    <div><span style={{fontWeight: '700', color: '#48bb78'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
+                    <div><span style={{fontWeight: '700', color: '#1a202c'}}>Pacote:</span> <span style={{color: '#4a5568', fontSize: '14px'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
+                    <div><span style={{fontWeight: '700', color: '#48bb78'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700', fontSize: '14px'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
                   </div>
                 </div>
               ))}

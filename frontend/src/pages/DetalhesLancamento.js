@@ -50,7 +50,7 @@ function DetalhesLancamento() {
     return { producao, perdas, percentual: percentual.toFixed(2) };
   };
 
-  const compartilharImagemWhatsApp = async () => {
+  const baixarImagem = async () => {
     if (!detalhesRef.current) return;
 
     try {
@@ -76,29 +76,10 @@ function DetalhesLancamento() {
         // Fazer download da imagem
         link.click();
         URL.revokeObjectURL(url);
-        
-        // Abrir WhatsApp direto (app ou web) com intent
-        setTimeout(() => {
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-          if (isMobile) {
-            // No mobile, tenta abrir o app com intent
-            // Primeiro tenta o protocolo whatsapp://
-            const whatsappLink = 'whatsapp://send?text=Compartilhando%20relat%C3%B3rio%20de%20produ%C3%A7%C3%A3o';
-            window.location.href = whatsappLink;
-            
-            // Se não funcionar em 3 segundos, tenta web.whatsapp.com
-            setTimeout(() => {
-              window.location.href = 'https://web.whatsapp.com/';
-            }, 3000);
-          } else {
-            // No desktop, abre o web direto
-            window.location.href = 'https://web.whatsapp.com/';
-          }
-        }, 500);
       });
     } catch (error) {
       console.error('Erro ao gerar imagem:', error);
-      alert('Erro ao gerar imagem para compartilhamento');
+      alert('Erro ao gerar imagem para download');
     }
   };
 

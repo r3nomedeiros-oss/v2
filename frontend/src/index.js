@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "@/index.css";
 import App from "@/App";
-import { register } from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -11,12 +10,15 @@ root.render(
   </React.StrictMode>,
 );
 
-// Registrar o Service Worker para PWA
-register({
-  onSuccess: () => {
-    console.log('PWA: Conteúdo cacheado para uso offline.');
-  },
-  onUpdate: () => {
-    console.log('PWA: Nova versão disponível! Atualize a página.');
-  }
-});
+// PWA Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('PWA: Service Worker registrado com sucesso');
+      })
+      .catch((error) => {
+        console.log('PWA: Falha ao registrar Service Worker:', error);
+      });
+  });
+}

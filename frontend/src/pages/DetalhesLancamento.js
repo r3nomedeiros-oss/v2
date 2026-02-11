@@ -102,8 +102,8 @@ function DetalhesLancamento() {
         <button onClick={() => navigate(`/lancamentos/${id}/editar`)} className="btn btn-primary">
           <Edit size={16} /> Editar
         </button>
-        <button onClick={compartilharImagemWhatsApp} className="btn" style={{background: '#25D366', color: 'white'}}>
-          <MessageCircle size={16} /> Compartilhar WhatsApp
+        <button onClick={baixarImagem} className="btn" style={{background: '#1e40af', color: 'white'}}>
+          <Download size={16} /> Baixar Imagem
         </button>
       </div>
 

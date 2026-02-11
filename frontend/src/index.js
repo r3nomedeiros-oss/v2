@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "@/index.css";
 import App from "@/App";
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { register } from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -12,7 +12,7 @@ root.render(
 );
 
 // Registrar o Service Worker para PWA
-serviceWorkerRegistration.register({
+register({
   onSuccess: () => {
     console.log('PWA: Conteúdo cacheado para uso offline.');
   },

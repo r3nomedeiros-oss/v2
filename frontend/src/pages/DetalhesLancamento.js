@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Calendar, Clock, Package, MessageCircle, Edit } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Package, Download, Edit } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';

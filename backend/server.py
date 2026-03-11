@@ -84,11 +84,11 @@ class LancamentoResponse(BaseModel):
     data: str
     turno: str
     hora: Optional[str] = None
-    orelha_kg: float
-    aparas_kg: float
-    producao_total: float
-    perdas_total: float
-    percentual_perdas: float
+    orelha_kg: float = 0
+    aparas_kg: float = 0
+    producao_total: Optional[float] = 0
+    perdas_total: Optional[float] = 0
+    percentual_perdas: Optional[float] = 0
     itens: List[dict] = []
     created_at: Optional[datetime] = None
 
@@ -210,6 +210,16 @@ async def get_lancamentos(data_inicio: Optional[str] = None, data_fim: Optional[
             # Buscar itens do lançamento
             itens_response = supabase.table("itens_lancamento").select("*").eq("lancamento_id", lanc['id']).execute()
             lanc['itens'] = itens_response.data if itens_response.data else []
+            
+            # Calcular campos se não existirem
+            if lanc.get('producao_total') is None:
+                lanc['producao_total'] = sum(item.get('producao_kg', 0) for item in lanc['itens'])
+            if lanc.get('perdas_total') is None:
+                lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
+            if lanc.get('percentual_perdas') is None:
+                total = lanc['producao_total'] + lanc['perdas_total']
+                lanc['percentual_perdas'] = round((lanc['perdas_total'] / total * 100), 2) if total > 0 else 0
+            
             lancamentos.append(lanc)
         
         return lancamentos
@@ -230,6 +240,15 @@ async def get_lancamento(lancamento_id: str):
         # Buscar itens
         itens_response = supabase.table("itens_lancamento").select("*").eq("lancamento_id", lancamento_id).execute()
         lanc['itens'] = itens_response.data if itens_response.data else []
+        
+        # Calcular campos se não existirem
+        if lanc.get('producao_total') is None:
+            lanc['producao_total'] = sum(item.get('producao_kg', 0) for item in lanc['itens'])
+        if lanc.get('perdas_total') is None:
+            lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
+        if lanc.get('percentual_perdas') is None:
+            total = lanc['producao_total'] + lanc['perdas_total']
+            lanc['percentual_perdas'] = round((lanc['perdas_total'] / total * 100), 2) if total > 0 else 0
         
         return lanc
     except HTTPException:
@@ -371,11 +390,19 @@ async def get_relatorios(periodo: str = "mensal", data_inicio: Optional[str] = N
         response = supabase.table("lancamentos").select("*").gte("data", str(inicio)).lte("data", str(fim)).execute()
         lancamentos = response.data
         
-        # Buscar todos os itens dos lançamentos
+        # Calcular campos faltantes e buscar itens
         itens_por_formato_cor = {}
         for lanc in lancamentos:
             itens_response = supabase.table("itens_lancamento").select("*").eq("lancamento_id", lanc['id']).execute()
-            for item in itens_response.data:
+            itens = itens_response.data if itens_response.data else []
+            
+            # Calcular producao_total e perdas_total se não existirem
+            if lanc.get('producao_total') is None or lanc.get('producao_total') == 0:
+                lanc['producao_total'] = sum(item.get('producao_kg', 0) for item in itens)
+            if lanc.get('perdas_total') is None or lanc.get('perdas_total') == 0:
+                lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
+            
+            for item in itens:
                 key = f"{item['formato']}|{item['cor']}"
                 if key not in itens_por_formato_cor:
                     itens_por_formato_cor[key] = {

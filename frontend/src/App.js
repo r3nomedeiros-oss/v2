@@ -84,7 +84,7 @@ function Navigation({ user, onLogout }) {
       <nav className="mobile-nav">
         <Link to="/" className={`mobile-nav-item ${isActive('/')}`}>
           <BarChart3 size={18} />
-          <span>Dashboard</span>
+          <span>Início</span>
         </Link>
         
         <Link to="/novo-lancamento" className={`mobile-nav-item ${isActive('/novo-lancamento')}`}>
@@ -94,12 +94,22 @@ function Navigation({ user, onLogout }) {
         
         <Link to="/lancamentos" className={`mobile-nav-item ${isActive('/lancamentos')}`}>
           <ClipboardList size={18} />
-          <span>Lançamentos</span>
+          <span>Lançam.</span>
         </Link>
         
         <Link to="/relatorios" className={`mobile-nav-item ${isActive('/relatorios')}`}>
           <BarChart3 size={18} />
-          <span>Relatórios</span>
+          <span>Relat.</span>
+        </Link>
+        
+        <Link to="/variaveis" className={`mobile-nav-item ${isActive('/variaveis')}`}>
+          <Settings size={18} />
+          <span>Config.</span>
+        </Link>
+        
+        <Link to="/usuarios" className={`mobile-nav-item ${isActive('/usuarios')}`}>
+          <Users size={18} />
+          <span>Usuários</span>
         </Link>
         
         <button onClick={onLogout} className="mobile-nav-item" style={{background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer'}}>

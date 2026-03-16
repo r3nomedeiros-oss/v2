@@ -661,3 +661,86 @@ table tbody tr:hover {
 .preview-items-mobile {
   display: none;
 }
+
+/* Filtros de Lançamentos */
+.filtros-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.filtros-icon {
+  display: flex;
+  align-items: center;
+}
+
+.filtros-campos {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+}
+
+.filtros-botoes {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-top: 18px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .filtros-container {
+    flex-wrap: wrap;
+  }
+  
+  .filtros-campos {
+    width: 100%;
+    order: 2;
+  }
+  
+  .filtros-botoes {
+    order: 3;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .filtros-icon {
+    order: 1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .filtros-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .filtros-icon {
+    display: none;
+  }
+  
+  .filtros-campos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .filtros-campos .form-group {
+    min-width: unset !important;
+  }
+  
+  .filtros-campos .form-control {
+    font-size: 14px !important;
+    padding: 10px 8px !important;
+  }
+  
+  .filtros-botoes {
+    margin-top: 5px;
+  }
+  
+  .filtros-botoes .btn {
+    padding: 10px 12px !important;
+  }
+}

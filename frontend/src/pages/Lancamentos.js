@@ -182,44 +182,48 @@ function Lancamentos() {
 
       {/* Filtros de Data */}
       <div className="card" style={{marginBottom: '20px'}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap'}}>
-          <Filter size={20} color="#667eea" />
-          <div className="form-group" style={{marginBottom: 0, minWidth: '150px'}}>
-            <label style={{fontSize: '12px', marginBottom: '4px'}}>Data Início</label>
-            <input
-              type="date"
-              className="form-control"
-              value={dataInicio}
-              onChange={(e) => setDataInicio(e.target.value)}
-              style={{padding: '8px'}}
-            />
+        <div className="filtros-container">
+          <div className="filtros-icon">
+            <Filter size={20} color="#667eea" />
           </div>
-          <div className="form-group" style={{marginBottom: 0, minWidth: '150px'}}>
-            <label style={{fontSize: '12px', marginBottom: '4px'}}>Data Fim</label>
-            <input
-              type="date"
-              className="form-control"
-              value={dataFim}
-              onChange={(e) => setDataFim(e.target.value)}
-              style={{padding: '8px'}}
-            />
+          <div className="filtros-campos">
+            <div className="form-group" style={{marginBottom: 0, flex: 1, minWidth: '120px'}}>
+              <label style={{fontSize: '12px', marginBottom: '4px'}}>Data Início</label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                style={{padding: '8px', fontSize: '14px'}}
+              />
+            </div>
+            <div className="form-group" style={{marginBottom: 0, flex: 1, minWidth: '120px'}}>
+              <label style={{fontSize: '12px', marginBottom: '4px'}}>Data Fim</label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataFim}
+                onChange={(e) => setDataFim(e.target.value)}
+                style={{padding: '8px', fontSize: '14px'}}
+              />
+            </div>
           </div>
-          <div style={{display: 'flex', gap: '10px', alignItems: 'flex-end', marginTop: '18px'}}>
-            <button onClick={aplicarFiltro} className="btn btn-primary" style={{padding: '8px 15px'}}>
+          <div className="filtros-botoes">
+            <button onClick={aplicarFiltro} className="btn btn-primary" style={{padding: '8px 15px', flex: 1}}>
               Filtrar
             </button>
             {filtroAtivo && (
               <button onClick={limparFiltro} className="btn btn-secondary" style={{padding: '8px 15px'}}>
-                <X size={14} /> Limpar
+                <X size={14} />
               </button>
             )}
           </div>
-          {filtroAtivo && (
-            <span style={{fontSize: '13px', color: '#667eea', fontWeight: '500', marginLeft: 'auto'}}>
-              Filtro ativo: {lancamentos.length} resultado(s)
-            </span>
-          )}
         </div>
+        {filtroAtivo && (
+          <div style={{marginTop: '10px', fontSize: '13px', color: '#667eea', fontWeight: '500'}}>
+            Filtro ativo: {lancamentos.length} resultado(s)
+          </div>
+        )}
       </div>
 
       {lancamentos.length === 0 ? (

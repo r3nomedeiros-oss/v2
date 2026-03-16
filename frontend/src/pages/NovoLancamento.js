@@ -44,9 +44,15 @@ function NovoLancamento() {
         setFormatos(formatosAtivos);
         setCores(coresAtivas);
         
-        // Definir turno padrão
-        if (turnosAtivos.length > 0 && !lancamento.turno) {
-          setLancamento(prev => ({...prev, turno: turnosAtivos[0].nome}));
+        // Definir turno padrão se o turno atual for o padrão 'A' e houver turnos ativos
+        if (turnosAtivos.length > 0) {
+          setLancamento(prev => {
+            // Só atualiza se ainda estiver com o valor inicial
+            if (prev.turno === 'A' && !turnosAtivos.find(t => t.nome === 'A')) {
+              return {...prev, turno: turnosAtivos[0].nome};
+            }
+            return prev;
+          });
         }
       } catch (error) {
         console.error('Erro ao carregar variáveis:', error);

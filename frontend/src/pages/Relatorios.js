@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FileText, FileSpreadsheet, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { FileText, FileSpreadsheet, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -296,17 +296,29 @@ function Relatorios() {
                 padding: '10px 0'
               }}
             >
-              <h2 style={{margin: 0, display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <Package size={24} />
-                Produção por Itens (Formato e Cor)
+              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                {itensExpandido ? <ChevronUp size={20} style={{color: '#16a34a'}} /> : <ChevronDown size={20} style={{color: '#16a34a'}} />}
+                <h2 style={{margin: 0, color: '#16a34a', fontStyle: 'italic'}}>
+                  Produção por Itens (Formato e Cor)
+                </h2>
                 {relatorio.itens_por_formato_cor && (
-                  <span style={{fontSize: '14px', fontWeight: 'normal', color: '#718096'}}>
-                    ({relatorio.itens_por_formato_cor.length} itens)
+                  <span style={{fontSize: '14px', fontWeight: 'normal', color: '#6b7280'}}>
+                    {relatorio.itens_por_formato_cor.length} itens
                   </span>
                 )}
-              </h2>
-              <button className="btn btn-secondary" style={{padding: '8px 12px'}}>
-                {itensExpandido ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </div>
+              <button 
+                className="btn" 
+                style={{
+                  padding: '8px 16px', 
+                  background: 'white', 
+                  border: '1px solid #16a34a',
+                  color: '#16a34a',
+                  borderRadius: '20px',
+                  fontSize: '13px'
+                }}
+              >
+                {itensExpandido ? 'Clique para minimizar' : 'Clique para expandir'}
               </button>
             </div>
             
@@ -316,24 +328,66 @@ function Relatorios() {
                   <div className="table-container">
                     <table>
                       <thead>
-                        <tr>
-                          <th>Formato</th>
-                          <th>Cor</th>
-                          <th>Produção Total (kg)</th>
-                          <th>Pacote Total (kg)</th>
-                          <th>Qtd. Lançamentos</th>
+                        <tr style={{borderBottom: '2px solid #e5e7eb'}}>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>FORMATO</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>COR</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>TOTAL PRODUZIDO (KG)</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>% DA PRODUÇÃO TOTAL</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {relatorio.itens_por_formato_cor.map((item, index) => (
-                          <tr key={index}>
-                            <td><strong>{item.formato}</strong></td>
-                            <td>{item.cor}</td>
-                            <td style={{fontWeight: '600', color: '#48bb78'}}>{formatarKg(item.producao_total)} kg</td>
-                            <td>{formatarKg(item.pacote_total)} kg</td>
-                            <td>{item.quantidade_lancamentos}</td>
-                          </tr>
-                        ))}
+                        {relatorio.itens_por_formato_cor.map((item, index) => {
+                          const percentual = relatorio.producao_total > 0 
+                            ? ((item.producao_total / relatorio.producao_total) * 100).toFixed(1) 
+                            : 0;
+                          return (
+                            <tr key={index} style={{borderBottom: '1px solid #f3f4f6'}}>
+                              <td style={{padding: '18px 12px', fontWeight: '500', color: '#111827'}}>{item.formato}</td>
+                              <td style={{padding: '18px 12px'}}>
+                                <span style={{
+                                  background: '#f3f4f6',
+                                  color: '#374151',
+                                  padding: '4px 12px',
+                                  borderRadius: '4px',
+                                  fontSize: '13px',
+                                  fontWeight: '500'
+                                }}>
+                                  {item.cor}
+                                </span>
+                              </td>
+                              <td style={{padding: '18px 12px', fontWeight: '600', color: '#111827'}}>
+                                {formatarKg(item.producao_total)} kg
+                              </td>
+                              <td style={{padding: '18px 12px'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                  <div style={{
+                                    flex: 1,
+                                    height: '12px',
+                                    background: '#e5e7eb',
+                                    borderRadius: '6px',
+                                    overflow: 'hidden'
+                                  }}>
+                                    <div style={{
+                                      width: `${Math.min(percentual, 100)}%`,
+                                      height: '100%',
+                                      background: '#16a34a',
+                                      borderRadius: '6px',
+                                      transition: 'width 0.3s ease'
+                                    }}></div>
+                                  </div>
+                                  <span style={{
+                                    minWidth: '50px',
+                                    textAlign: 'right',
+                                    fontWeight: '500',
+                                    color: '#374151'
+                                  }}>
+                                    {percentual}%
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

@@ -139,30 +139,38 @@ function DetalhesLancamento() {
         </div>
 
         <div style={{borderTop: '2px solid #e2e8f0', paddingTop: '12px'}}>
-          <h3 style={{fontSize: '14px', fontWeight: '800', color: '#1a202c', margin: '0 0 12px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
+          <h3 style={{fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: '0 0 16px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
           
           {lancamento.itens && lancamento.itens.length > 0 ? (
-            <div style={{background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden'}}>
+            <div>
               <table style={{width: '100%', borderCollapse: 'collapse'}}>
                 <thead>
-                  <tr style={{borderBottom: '1px solid #e2e8f0', background: '#f1f5f9'}}>
-                    <th style={{padding: '10px 8px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Formato</th>
-                    <th style={{padding: '10px 8px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Cor</th>
-                    <th style={{padding: '10px 8px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Pacote</th>
-                    <th style={{padding: '10px 8px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Produção</th>
+                  <tr style={{borderBottom: '3px solid #16a34a'}}>
+                    <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '13px', fontWeight: '700', color: '#166534', textTransform: 'uppercase'}}>Formato</th>
+                    <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '13px', fontWeight: '700', color: '#166534', textTransform: 'uppercase'}}>Cor</th>
+                    <th style={{padding: '12px 8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#166534', textTransform: 'uppercase'}}>Pacote</th>
+                    <th style={{padding: '12px 8px', textAlign: 'right', fontSize: '13px', fontWeight: '700', color: '#166534', textTransform: 'uppercase'}}>Produção</th>
                   </tr>
                 </thead>
                 <tbody>
                   {lancamento.itens.map((item, index) => (
-                    <tr key={index} style={{borderBottom: index < lancamento.itens.length - 1 ? '1px solid #e2e8f0' : 'none'}}>
-                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', fontWeight: '600'}}>{item.formato}</td>
-                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', fontWeight: '600'}}>{item.cor}</td>
-                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', textAlign: 'center'}}>{parseFloat(item.pacote_kg).toFixed(0)} kg</td>
-                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#48bb78', textAlign: 'right', fontWeight: '700'}}>{parseFloat(item.producao_kg).toFixed(0)} kg</td>
+                    <tr key={index}>
+                      <td style={{padding: '16px 8px', fontSize: '14px', color: '#1a202c', fontWeight: '500'}}>{item.formato}</td>
+                      <td style={{padding: '16px 8px', fontSize: '14px', color: '#1a202c', fontWeight: '500'}}>{item.cor}</td>
+                      <td style={{padding: '16px 8px', fontSize: '14px', color: '#1a202c', textAlign: 'center', fontWeight: '500'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</td>
+                      <td style={{padding: '16px 8px', fontSize: '14px', color: '#16a34a', textAlign: 'right', fontWeight: '600'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              
+              {/* Linha verde grossa e Total */}
+              <div style={{borderTop: '4px solid #16a34a', marginTop: '8px', paddingTop: '16px'}}>
+                <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px', paddingRight: '8px'}}>
+                  <span style={{fontSize: '14px', fontWeight: '800', color: '#1a202c', textTransform: 'uppercase'}}>Total:</span>
+                  <span style={{fontSize: '16px', fontWeight: '700', color: '#1a202c'}}>{totais.producao.toFixed(0)} kg</span>
+                </div>
+              </div>
             </div>
           ) : (
             <p style={{fontSize: '12px', color: '#4a5568', margin: '0'}}>Nenhum item registrado</p>

@@ -142,19 +142,27 @@ function DetalhesLancamento() {
           <h3 style={{fontSize: '14px', fontWeight: '800', color: '#1a202c', margin: '0 0 12px 0', textTransform: 'uppercase'}}>Itens Produzidos</h3>
           
           {lancamento.itens && lancamento.itens.length > 0 ? (
-            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-              {lancamento.itens.map((item, index) => (
-                <div key={index} style={{background: '#f8fafc', padding: '14px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '15px'}}>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Formato:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{item.formato}</span></div>
-                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Cor:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{item.cor}</span></div>
-                  </div>
-                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
-                    <div><span style={{fontWeight: '700', color: '#1a202c', fontSize: '14px'}}>Pacote:</span> <span style={{color: '#4a5568', fontSize: '16px', fontWeight: '600'}}>{parseFloat(item.pacote_kg).toFixed(2)} kg</span></div>
-                    <div><span style={{fontWeight: '700', color: '#48bb78', fontSize: '14px'}}>Produção:</span> <span style={{color: '#48bb78', fontWeight: '700', fontSize: '16px'}}>{parseFloat(item.producao_kg).toFixed(2)} kg</span></div>
-                  </div>
-                </div>
-              ))}
+            <div style={{background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden'}}>
+              <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                <thead>
+                  <tr style={{borderBottom: '1px solid #e2e8f0', background: '#f1f5f9'}}>
+                    <th style={{padding: '10px 8px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Formato</th>
+                    <th style={{padding: '10px 8px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Cor</th>
+                    <th style={{padding: '10px 8px', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Pacote</th>
+                    <th style={{padding: '10px 8px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase'}}>Produção</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lancamento.itens.map((item, index) => (
+                    <tr key={index} style={{borderBottom: index < lancamento.itens.length - 1 ? '1px solid #e2e8f0' : 'none'}}>
+                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', fontWeight: '600'}}>{item.formato}</td>
+                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', fontWeight: '600'}}>{item.cor}</td>
+                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#1a202c', textAlign: 'center'}}>{parseFloat(item.pacote_kg).toFixed(0)} kg</td>
+                      <td style={{padding: '10px 8px', fontSize: '13px', color: '#48bb78', textAlign: 'right', fontWeight: '700'}}>{parseFloat(item.producao_kg).toFixed(0)} kg</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <p style={{fontSize: '12px', color: '#4a5568', margin: '0'}}>Nenhum item registrado</p>

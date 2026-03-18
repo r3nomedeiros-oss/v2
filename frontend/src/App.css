@@ -564,6 +564,11 @@ table tbody tr:hover {
   font-weight: 600;
 }
 
+.item-producao-grid .btn-delete-item {
+  align-self: end;
+  margin-bottom: 0;
+}
+
 /* Pré-visualização Responsiva */
 .preview-info-grid {
   display: grid;
@@ -586,7 +591,9 @@ table tbody tr:hover {
   
   .item-producao-grid .btn-delete-item {
     grid-column: span 2;
-    justify-self: end;
+    justify-self: stretch;
+    width: 100%;
+    justify-content: center;
   }
 
   .preview-info-grid {
@@ -603,9 +610,10 @@ table tbody tr:hover {
 /* Mobile - 480px */
 @media (max-width: 480px) {
   .item-producao-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     padding: 15px;
+    position: relative;
   }
   
   .item-producao-grid .form-group label {
@@ -622,10 +630,12 @@ table tbody tr:hover {
   }
   
   .item-producao-grid .btn-delete-item {
+    grid-column: span 2;
     width: 100%;
     justify-content: center;
-    padding: 12px;
-    height: auto;
+    padding: 12px !important;
+    height: auto !important;
+    min-width: unset !important;
   }
 
   .preview-info-grid {

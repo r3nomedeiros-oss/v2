@@ -307,16 +307,23 @@ function NovoLancamento() {
                 />
               </div>
 
-              {lancamento.itens.length > 1 && (
-                <button
-                  type="button"
-                  className="btn btn-danger btn-delete-item"
-                  onClick={() => removerItem(index)}
-                  title="Remover item"
-                >
-                  <Trash2 size={14} />
-                </button>
-              )}
+              <button
+                type="button"
+                className="btn btn-danger btn-delete-item"
+                onClick={() => removerItem(index)}
+                title="Remover item"
+                style={{
+                  visibility: lancamento.itens.length > 1 ? 'visible' : 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '36px',
+                  height: '36px',
+                  padding: '0'
+                }}
+              >
+                <Trash2 size={16} />
+              </button>
             </div>
           ))}
         </div>

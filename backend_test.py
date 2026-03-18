@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any
 
 class PolyTrackTester:
-    def __init__(self, base_url: str = "https://github-sync-issue-2.preview.emergentagent.com/api"):
+    def __init__(self, base_url: str = "https://delete-icon-missing.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.session = requests.Session()
         self.session.headers.update({

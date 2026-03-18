@@ -179,21 +179,33 @@ function Dashboard() {
         
         {dadosGrafico.some(d => d.producao > 0 || d.perdas > 0) ? (
           <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={dadosGrafico}>
+            <LineChart data={dadosGrafico} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" />
+              <XAxis 
+                dataKey="data" 
+                tick={{ fontSize: 11 }}
+                interval={0}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
               <YAxis 
                 yAxisId="left"
-                label={{ value: 'kg', angle: -90, position: 'insideLeft' }} 
+                label={{ value: 'kg', angle: -90, position: 'insideLeft', fontSize: 11 }}
+                tick={{ fontSize: 11 }}
+                width={50}
               />
               <YAxis 
                 yAxisId="right" 
                 orientation="right"
-                label={{ value: '%', angle: 90, position: 'insideRight' }}
+                label={{ value: '%', angle: 90, position: 'insideRight', fontSize: 11 }}
                 domain={[0, 100]}
+                tick={{ fontSize: 11 }}
+                width={40}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend 
+                wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
                 formatter={(value) => {
                   if (value === 'producao') return 'Produção (kg)';
                   if (value === 'perdas') return 'Perdas (kg)';

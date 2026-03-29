@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Eye } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -84,6 +84,34 @@ function EditarLancamento() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Cálculos para pré-visualização
+  const previewData = useMemo(() => {
+    const producaoTotal = lancamento.itens.reduce((acc, item) => 
+      acc + (parseFloat(item.producao_kg) || 0), 0);
+    const pacoteTotal = lancamento.itens.reduce((acc, item) => 
+      acc + (parseFloat(item.pacote_kg) || 0), 0);
+    const orelha = parseFloat(lancamento.orelha_kg) || 0;
+    const aparas = parseFloat(lancamento.aparas_kg) || 0;
+    const perdasTotal = orelha + aparas;
+    const totalGeral = producaoTotal + perdasTotal;
+    const percentualPerdas = totalGeral > 0 ? ((perdasTotal / totalGeral) * 100).toFixed(2) : 0;
+    
+    return {
+      producaoTotal: producaoTotal.toFixed(2),
+      pacoteTotal: pacoteTotal.toFixed(2),
+      perdasTotal: perdasTotal.toFixed(2),
+      percentualPerdas,
+      itensPreenchidos: lancamento.itens.filter(i => i.formato && i.cor && i.producao_kg).length,
+      totalItens: lancamento.itens.length
+    };
+  }, [lancamento]);
+
+  const formatarData = (dataStr) => {
+    if (!dataStr) return '';
+    const [ano, mes, dia] = dataStr.split('-');
+    return `${dia}/${mes}/${ano}`;
   };
 
   if (carregando) {
@@ -289,6 +317,127 @@ function EditarLancamento() {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Pré-visualização */}
+        <div style={{background: '#dcfce7', borderRadius: '12px', padding: '20px', border: '1px solid #86efac'}}>
+          {/* Header */}
+          <div className="preview-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+              <Eye size={22} style={{color: '#16a34a'}} />
+              <span style={{fontSize: '20px', fontWeight: '600', color: '#16a34a'}}>Pré-visualização do Lançamento</span>
+            </div>
+          </div>
+
+          <>
+            {/* Informações Gerais - Card Branco */}
+            <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
+              <div className="preview-info-grid">
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Data</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{formatarData(lancamento.data)}</div>
+                </div>
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Hora</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.hora || '-'}</div>
+                </div>
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Turno</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.turno || '-'}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Itens de Produção - Card Branco */}
+            <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
+              <div style={{fontSize: '14px', color: '#6b7280', marginBottom: '15px'}}>Itens de Produção</div>
+              
+              {/* Tabela para Desktop */}
+              <div className="preview-table-desktop">
+                <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                  <thead>
+                    <tr style={{borderBottom: '1px solid #e5e7eb'}}>
+                      <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Formato</th>
+                      <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Cor</th>
+                      <th style={{padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Pacote (kg)</th>
+                      <th style={{padding: '12px 8px', textAlign: 'right', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Produção (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lancamento.itens.map((item, idx) => (
+                      <tr key={idx} style={{borderBottom: idx < lancamento.itens.length - 1 ? '1px solid #f3f4f6' : 'none'}}>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.formato || '-'}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.cor || '-'}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827', textAlign: 'center'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#16a34a', textAlign: 'right', fontWeight: '500'}}>{parseFloat(item.producao_kg || 0).toFixed(0)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Cards para Mobile */}
+              <div className="preview-items-mobile">
+                {lancamento.itens.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: '#f9fafb',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: idx < lancamento.itens.length - 1 ? '10px' : '0',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <span style={{fontWeight: '600', color: '#111827', fontSize: '15px'}}>{item.formato || '-'}</span>
+                      <span style={{background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '13px', fontWeight: '500'}}>{item.cor || '-'}</span>
+                    </div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px'}}>
+                      <div>
+                        <span style={{color: '#6b7280'}}>Pacote: </span>
+                        <span style={{color: '#111827', fontWeight: '500'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)} kg</span>
+                      </div>
+                      <div>
+                        <span style={{color: '#6b7280'}}>Produção: </span>
+                        <span style={{color: '#16a34a', fontWeight: '700'}}>{parseFloat(item.producao_kg || 0).toFixed(0)} kg</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Cards de Totais */}
+            <div className="preview-totais-grid">
+              {/* Produção Total - Rosa Claro */}
+              <div style={{background: '#fce7f3', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#be185d', marginBottom: '6px'}}>Produção Total</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#9d174d'}}>{previewData.producaoTotal} kg</div>
+              </div>
+              
+              {/* Orelha - Vermelho */}
+              <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Orelha</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.orelha_kg || 0).toFixed(0)} kg</div>
+              </div>
+              
+              {/* Aparas - Vermelho */}
+              <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Aparas</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.aparas_kg || 0).toFixed(0)} kg</div>
+              </div>
+              
+              {/* Perdas Total - Amarelo */}
+              <div style={{background: '#fef3c7', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#d97706', marginBottom: '6px'}}>Perdas Total</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b45309'}}>{previewData.perdasTotal} kg</div>
+              </div>
+              
+              {/* % Perdas - Lilás */}
+              <div style={{background: '#e9d5ff', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#7c3aed', marginBottom: '6px'}}>% Perdas</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#6d28d9'}}>{previewData.percentualPerdas}%</div>
+              </div>
+            </div>
+          </>
         </div>
 
         <div style={{display: 'flex', gap: '10px'}}>

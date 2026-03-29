@@ -1,15 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import NovoLancamento from './pages/NovoLancamento';
-import Lancamentos from './pages/Lancamentos';
-import DetalhesLancamento from './pages/DetalhesLancamento';
-import EditarLancamento from './pages/EditarLancamento';
-import Relatorios from './pages/Relatorios';
-import Usuarios from './pages/Usuarios';
-import Variaveis from './pages/Variaveis';
-import Login from './pages/Login';
 import { Factory, ClipboardList, BarChart3, PlusCircle, Users, LogOut, Settings } from 'lucide-react';
+import './App.css';
+
+// Lazy loading para otimização de carregamento
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const NovoLancamento = lazy(() => import('./pages/NovoLancamento'));
+const Lancamentos = lazy(() => import('./pages/Lancamentos'));
+const DetalhesLancamento = lazy(() => import('./pages/DetalhesLancamento'));
+const EditarLancamento = lazy(() => import('./pages/EditarLancamento'));
+const Relatorios = lazy(() => import('./pages/Relatorios'));
+const Usuarios = lazy(() => import('./pages/Usuarios'));
+const Variaveis = lazy(() => import('./pages/Variaveis'));
+const Login = lazy(() => import('./pages/Login'));
+
+// Componente de loading para Suspense
+const LoadingFallback = () => (
+  <div className="loading" style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '200px',
+    gap: '15px'
+  }}>
+    <div style={{
+      width: '40px',
+      height: '40px',
+      border: '3px solid #e2e8f0',
+      borderTop: '3px solid #667eea',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }}></div>
+    <span style={{color: '#667eea', fontWeight: '500'}}>Carregando...</span>
+  </div>
+);
 import './App.css';
 
 function ProtectedRoute({ children }) {
@@ -153,10 +178,12 @@ function AppContent() {
   // Se for página de login, renderiza sem o container principal que tem margens/sidebar
   if (isLoginPage) {
     return (
-      <Routes>
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -164,17 +191,19 @@ function AppContent() {
     <div className="app-container">
       <Navigation user={user} onLogout={handleLogout} />
       <div className="main-content">
-        <Routes>
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/novo-lancamento" element={<ProtectedRoute><NovoLancamento /></ProtectedRoute>} />
-          <Route path="/lancamentos" element={<ProtectedRoute><Lancamentos /></ProtectedRoute>} />
-          <Route path="/lancamentos/:id" element={<ProtectedRoute><DetalhesLancamento /></ProtectedRoute>} />
-          <Route path="/lancamentos/:id/editar" element={<ProtectedRoute><EditarLancamento /></ProtectedRoute>} />
-          <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
-          <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
-          <Route path="/variaveis" element={<ProtectedRoute><Variaveis /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/novo-lancamento" element={<ProtectedRoute><NovoLancamento /></ProtectedRoute>} />
+            <Route path="/lancamentos" element={<ProtectedRoute><Lancamentos /></ProtectedRoute>} />
+            <Route path="/lancamentos/:id" element={<ProtectedRoute><DetalhesLancamento /></ProtectedRoute>} />
+            <Route path="/lancamentos/:id/editar" element={<ProtectedRoute><EditarLancamento /></ProtectedRoute>} />
+            <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+            <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
+            <Route path="/variaveis" element={<ProtectedRoute><Variaveis /></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );

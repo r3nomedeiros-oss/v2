@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Trash2, Save, Eye, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Save, Eye } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
 function NovoLancamento() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
   
   // Variáveis carregadas do backend
   const [turnos, setTurnos] = useState([]);
@@ -336,28 +335,9 @@ function NovoLancamento() {
               <Eye size={22} style={{color: '#16a34a'}} />
               <span style={{fontSize: '20px', fontWeight: '600', color: '#16a34a'}}>Pré-visualização do Lançamento</span>
             </div>
-            <button 
-              type="button"
-              onClick={() => setShowPreview(!showPreview)}
-              style={{
-                background: 'transparent', 
-                border: 'none', 
-                color: '#16a34a', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              {showPreview ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              {showPreview ? 'Ocultar' : 'Mostrar'}
-            </button>
           </div>
 
-          {showPreview && (
-            <>
+          <>
               {/* Informações Gerais - Card Branco */}
               <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
                 <div className="preview-info-grid">
@@ -466,7 +446,6 @@ function NovoLancamento() {
                 </div>
               </div>
             </>
-          )}
         </div>
 
         <div style={{display: 'flex', gap: '10px'}}>

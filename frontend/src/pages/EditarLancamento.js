@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus, Trash2, Save, ArrowLeft, Eye } from 'lucide-react';
+import { useVariaveis } from '../contexts/VariaveisContext';
+import { useDados } from '../contexts/DadosContext';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -11,10 +13,9 @@ function EditarLancamento() {
   const [loading, setLoading] = useState(false);
   const [carregando, setCarregando] = useState(true);
   
-  // Variáveis carregadas do backend
-  const [turnos, setTurnos] = useState([]);
-  const [formatos, setFormatos] = useState([]);
-  const [cores, setCores] = useState([]);
+  // Usar cache de variáveis
+  const { turnos, formatos, cores, carregarVariaveis } = useVariaveis();
+  const { invalidarCache } = useDados();
   
   const [lancamento, setLancamento] = useState({
     data: '',
@@ -32,17 +33,13 @@ function EditarLancamento() {
 
   const carregarDados = async () => {
     try {
-      const [lancamentoRes, turnosRes, formatosRes, coresRes] = await Promise.all([
-        axios.get(`${API_URL}/lancamentos/${id}`),
-        axios.get(`${API_URL}/variaveis/turnos`),
-        axios.get(`${API_URL}/variaveis/formatos`),
-        axios.get(`${API_URL}/variaveis/cores`)
+      // Carregar variáveis do cache e lançamento em paralelo
+      const [_, lancamentoRes] = await Promise.all([
+        carregarVariaveis(),
+        axios.get(`${API_URL}/lancamentos/${id}`)
       ]);
       
       setLancamento(lancamentoRes.data);
-      setTurnos((turnosRes.data || []).filter(t => t.ativo));
-      setFormatos((formatosRes.data || []).filter(f => f.ativo));
-      setCores((coresRes.data || []).filter(c => c.ativo));
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       alert('Erro ao carregar lançamento');
@@ -76,6 +73,7 @@ function EditarLancamento() {
     
     try {
       await axios.put(`${API_URL}/lancamentos/${id}`, lancamento);
+      invalidarCache(); // Invalidar cache após editar
       alert('Lançamento atualizado com sucesso!');
       navigate('/lancamentos');
     } catch (error) {

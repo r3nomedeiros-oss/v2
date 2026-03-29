@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Edit2, Check, X, Settings, ChevronUp, ChevronDown } from 'lucide-react';
+import { useVariaveis } from '../contexts/VariaveisContext';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -10,6 +11,9 @@ function Variaveis() {
   const [cores, setCores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('turnos');
+  
+  // Usar o cache de variáveis
+  const { invalidarCache } = useVariaveis();
   
   // Estados para edição
   const [editingId, setEditingId] = useState(null);
@@ -34,6 +38,7 @@ function Variaveis() {
       setTurnos(turnosRes.data || []);
       setFormatos(formatosRes.data || []);
       setCores(coresRes.data || []);
+      invalidarCache(); // Invalidar cache global quando carregar dados frescos
     } catch (error) {
       console.error('Erro ao carregar variáveis:', error);
     } finally {

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { FileText, FileSpreadsheet, ChevronDown, ChevronUp } from 'lucide-react';
-
-const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
+import { useDados } from '../contexts/DadosContext';
 
 const formatarKg = (valor) => {
   return new Intl.NumberFormat('pt-BR').format(Math.round(valor));
 };
 
 function Relatorios() {
+  const { carregarStats } = useDados();
   const [periodo, setPeriodo] = useState('mensal');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
@@ -26,19 +25,9 @@ function Relatorios() {
   const gerarRelatorio = async () => {
     setLoading(true);
     try {
-      let url = `${API_URL}/relatorios?periodo=${periodo}`;
-      
-      if (periodo === 'customizado') {
-        if (!dataInicio || !dataFim) {
-          alert('Por favor, selecione as datas de início e fim.');
-          setLoading(false);
-          return;
-        }
-        url += `&data_inicio=${dataInicio}&data_fim=${dataFim}`;
-      }
-      
-      const response = await axios.get(url);
-      setRelatorio(response.data);
+      // Usar o cache para período mensal sem filtro de data
+      const data = await carregarStats(false, periodo, dataInicio, dataFim);
+      setRelatorio(data);
     } catch (error) {
       console.error('Erro ao gerar relatório:', error);
       alert('Erro ao carregar relatório. Verifique a conexão.');

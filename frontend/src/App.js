@@ -1,6 +1,8 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { Factory, ClipboardList, BarChart3, PlusCircle, Users, LogOut, Settings } from 'lucide-react';
+import { VariaveisProvider } from './contexts/VariaveisContext';
+import { DadosProvider } from './contexts/DadosContext';
 import './App.css';
 
 // Lazy loading para otimização de carregamento
@@ -35,7 +37,6 @@ const LoadingFallback = () => (
     <span style={{color: '#667eea', fontWeight: '500'}}>Carregando...</span>
   </div>
 );
-import './App.css';
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('token');
@@ -212,7 +213,11 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <VariaveisProvider>
+        <DadosProvider>
+          <AppContent />
+        </DadosProvider>
+      </VariaveisProvider>
     </Router>
   );
 }

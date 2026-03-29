@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus, Trash2, Save, Eye } from 'lucide-react';
+import { useVariaveis } from '../contexts/VariaveisContext';
+import { useDados } from '../contexts/DadosContext';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -9,11 +11,9 @@ function NovoLancamento() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
-  // Variáveis carregadas do backend
-  const [turnos, setTurnos] = useState([]);
-  const [formatos, setFormatos] = useState([]);
-  const [cores, setCores] = useState([]);
-  const [loadingVars, setLoadingVars] = useState(true);
+  // Usar cache de variáveis
+  const { turnos, formatos, cores, carregarVariaveis, loading: loadingVars } = useVariaveis();
+  const { invalidarCache } = useDados();
   
   const [lancamento, setLancamento] = useState({
     data: new Date().toISOString().split('T')[0],
@@ -26,45 +26,25 @@ function NovoLancamento() {
     ]
   });
 
-  // Carregar variáveis do backend
+  // Carregar variáveis do cache
   useEffect(() => {
-    const carregarVariaveis = async () => {
-      try {
-        const [turnosRes, formatosRes, coresRes] = await Promise.all([
-          axios.get(`${API_URL}/variaveis/turnos`),
-          axios.get(`${API_URL}/variaveis/formatos`),
-          axios.get(`${API_URL}/variaveis/cores`)
-        ]);
-        
-        const turnosAtivos = (turnosRes.data || []).filter(t => t.ativo);
-        const formatosAtivos = (formatosRes.data || []).filter(f => f.ativo);
-        const coresAtivas = (coresRes.data || []).filter(c => c.ativo);
-        
-        setTurnos(turnosAtivos);
-        setFormatos(formatosAtivos);
-        setCores(coresAtivas);
-        
-        // Definir turno padrão se o turno atual for o padrão 'A' e houver turnos ativos
-        if (turnosAtivos.length > 0) {
-          setLancamento(prev => {
-            // Só atualiza se ainda estiver com o valor inicial
-            if (prev.turno === 'A' && !turnosAtivos.find(t => t.nome === 'A')) {
-              return {...prev, turno: turnosAtivos[0].nome};
-            }
-            return prev;
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao carregar variáveis:', error);
-        // Usar valores padrão se não conseguir carregar
-        setTurnos([{id: '1', nome: 'A'}, {id: '2', nome: 'B'}, {id: '3', nome: 'Administrativo'}]);
-      } finally {
-        setLoadingVars(false);
-      }
+    const init = async () => {
+      await carregarVariaveis();
     };
-    
-    carregarVariaveis();
-  }, []);
+    init();
+  }, [carregarVariaveis]);
+
+  // Definir turno padrão quando variáveis carregarem
+  useEffect(() => {
+    if (turnos.length > 0) {
+      setLancamento(prev => {
+        if (prev.turno === 'A' && !turnos.find(t => t.nome === 'A')) {
+          return {...prev, turno: turnos[0].nome};
+        }
+        return prev;
+      });
+    }
+  }, [turnos]);
 
   // Atualizar hora automaticamente a cada minuto
   useEffect(() => {
@@ -101,6 +81,7 @@ function NovoLancamento() {
     
     try {
       await axios.post(`${API_URL}/lancamentos`, lancamento);
+      invalidarCache(); // Invalidar cache após criar
       alert('Lançamento criado com sucesso!');
       navigate('/lancamentos');
     } catch (error) {
@@ -139,7 +120,7 @@ function NovoLancamento() {
     return `${dia}/${mes}/${ano}`;
   };
 
-  if (loadingVars) {
+  if (loadingVars && turnos.length === 0) {
     return <div className="loading">Carregando formulário...</div>;
   }
 
@@ -338,114 +319,114 @@ function NovoLancamento() {
           </div>
 
           <>
-              {/* Informações Gerais - Card Branco */}
-              <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
-                <div className="preview-info-grid">
-                  <div>
-                    <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Data</div>
-                    <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{formatarData(lancamento.data)}</div>
-                  </div>
-                  <div>
-                    <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Hora</div>
-                    <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.hora || '-'}</div>
-                  </div>
-                  <div>
-                    <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Turno</div>
-                    <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.turno || '-'}</div>
-                  </div>
+            {/* Informações Gerais - Card Branco */}
+            <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
+              <div className="preview-info-grid">
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Data</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{formatarData(lancamento.data)}</div>
+                </div>
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Hora</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.hora || '-'}</div>
+                </div>
+                <div>
+                  <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '4px'}}>Turno</div>
+                  <div style={{fontSize: '18px', fontWeight: '600', color: '#111827'}}>{lancamento.turno || '-'}</div>
                 </div>
               </div>
+            </div>
 
-              {/* Itens de Produção - Card Branco */}
-              <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
-                <div style={{fontSize: '14px', color: '#6b7280', marginBottom: '15px'}}>Itens de Produção</div>
-                
-                {/* Tabela para Desktop */}
-                <div className="preview-table-desktop">
-                  <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                    <thead>
-                      <tr style={{borderBottom: '1px solid #e5e7eb'}}>
-                        <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Formato</th>
-                        <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Cor</th>
-                        <th style={{padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Pacote (kg)</th>
-                        <th style={{padding: '12px 8px', textAlign: 'right', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Produção (kg)</th>
+            {/* Itens de Produção - Card Branco */}
+            <div style={{background: 'white', borderRadius: '8px', padding: '20px', marginBottom: '20px'}}>
+              <div style={{fontSize: '14px', color: '#6b7280', marginBottom: '15px'}}>Itens de Produção</div>
+              
+              {/* Tabela para Desktop */}
+              <div className="preview-table-desktop">
+                <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                  <thead>
+                    <tr style={{borderBottom: '1px solid #e5e7eb'}}>
+                      <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Formato</th>
+                      <th style={{padding: '12px 8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Cor</th>
+                      <th style={{padding: '12px 8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Pacote (kg)</th>
+                      <th style={{padding: '12px 8px', textAlign: 'right', fontSize: '12px', fontWeight: '600', color: '#374151', textTransform: 'uppercase'}}>Produção (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lancamento.itens.map((item, idx) => (
+                      <tr key={idx} style={{borderBottom: idx < lancamento.itens.length - 1 ? '1px solid #f3f4f6' : 'none'}}>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.formato || '-'}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.cor || '-'}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827', textAlign: 'center'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)}</td>
+                        <td style={{padding: '12px 8px', fontSize: '14px', color: '#16a34a', textAlign: 'right', fontWeight: '500'}}>{parseFloat(item.producao_kg || 0).toFixed(0)}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {lancamento.itens.map((item, idx) => (
-                        <tr key={idx} style={{borderBottom: idx < lancamento.itens.length - 1 ? '1px solid #f3f4f6' : 'none'}}>
-                          <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.formato || '-'}</td>
-                          <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827'}}>{item.cor || '-'}</td>
-                          <td style={{padding: '12px 8px', fontSize: '14px', color: '#111827', textAlign: 'center'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)}</td>
-                          <td style={{padding: '12px 8px', fontSize: '14px', color: '#16a34a', textAlign: 'right', fontWeight: '500'}}>{parseFloat(item.producao_kg || 0).toFixed(0)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                {/* Cards para Mobile */}
-                <div className="preview-items-mobile">
-                  {lancamento.itens.map((item, idx) => (
-                    <div key={idx} style={{
-                      background: '#f9fafb',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      marginBottom: idx < lancamento.itens.length - 1 ? '10px' : '0',
-                      border: '1px solid #e5e7eb'
-                    }}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                        <span style={{fontWeight: '600', color: '#111827', fontSize: '15px'}}>{item.formato || '-'}</span>
-                        <span style={{background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '13px', fontWeight: '500'}}>{item.cor || '-'}</span>
+              {/* Cards para Mobile */}
+              <div className="preview-items-mobile">
+                {lancamento.itens.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: '#f9fafb',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: idx < lancamento.itens.length - 1 ? '10px' : '0',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <span style={{fontWeight: '600', color: '#111827', fontSize: '15px'}}>{item.formato || '-'}</span>
+                      <span style={{background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '13px', fontWeight: '500'}}>{item.cor || '-'}</span>
+                    </div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px'}}>
+                      <div>
+                        <span style={{color: '#6b7280'}}>Pacote: </span>
+                        <span style={{color: '#111827', fontWeight: '500'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)} kg</span>
                       </div>
-                      <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '14px'}}>
-                        <div>
-                          <span style={{color: '#6b7280'}}>Pacote: </span>
-                          <span style={{color: '#111827', fontWeight: '500'}}>{parseFloat(item.pacote_kg || 0).toFixed(0)} kg</span>
-                        </div>
-                        <div>
-                          <span style={{color: '#6b7280'}}>Produção: </span>
-                          <span style={{color: '#16a34a', fontWeight: '700'}}>{parseFloat(item.producao_kg || 0).toFixed(0)} kg</span>
-                        </div>
+                      <div>
+                        <span style={{color: '#6b7280'}}>Produção: </span>
+                        <span style={{color: '#16a34a', fontWeight: '700'}}>{parseFloat(item.producao_kg || 0).toFixed(0)} kg</span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              {/* Cards de Totais */}
-              <div className="preview-totais-grid">
-                {/* Produção Total - Rosa Claro */}
-                <div style={{background: '#fce7f3', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
-                  <div style={{fontSize: '12px', color: '#be185d', marginBottom: '6px'}}>Produção Total</div>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#9d174d'}}>{previewData.producaoTotal} kg</div>
-                </div>
-                
-                {/* Orelha - Vermelho */}
-                <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
-                  <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Orelha</div>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.orelha_kg || 0).toFixed(0)} kg</div>
-                </div>
-                
-                {/* Aparas - Vermelho */}
-                <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
-                  <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Aparas</div>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.aparas_kg || 0).toFixed(0)} kg</div>
-                </div>
-                
-                {/* Perdas Total - Amarelo */}
-                <div style={{background: '#fef3c7', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
-                  <div style={{fontSize: '12px', color: '#d97706', marginBottom: '6px'}}>Perdas Total</div>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#b45309'}}>{previewData.perdasTotal} kg</div>
-                </div>
-                
-                {/* % Perdas - Lilás */}
-                <div style={{background: '#e9d5ff', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
-                  <div style={{fontSize: '12px', color: '#7c3aed', marginBottom: '6px'}}>% Perdas</div>
-                  <div style={{fontSize: '20px', fontWeight: '700', color: '#6d28d9'}}>{previewData.percentualPerdas}%</div>
-                </div>
+            {/* Cards de Totais */}
+            <div className="preview-totais-grid">
+              {/* Produção Total - Rosa Claro */}
+              <div style={{background: '#fce7f3', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#be185d', marginBottom: '6px'}}>Produção Total</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#9d174d'}}>{previewData.producaoTotal} kg</div>
               </div>
-            </>
+              
+              {/* Orelha - Vermelho */}
+              <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Orelha</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.orelha_kg || 0).toFixed(0)} kg</div>
+              </div>
+              
+              {/* Aparas - Vermelho */}
+              <div style={{background: '#fecaca', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#dc2626', marginBottom: '6px'}}>Aparas</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b91c1c'}}>{parseFloat(lancamento.aparas_kg || 0).toFixed(0)} kg</div>
+              </div>
+              
+              {/* Perdas Total - Amarelo */}
+              <div style={{background: '#fef3c7', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#d97706', marginBottom: '6px'}}>Perdas Total</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#b45309'}}>{previewData.perdasTotal} kg</div>
+              </div>
+              
+              {/* % Perdas - Lilás */}
+              <div style={{background: '#e9d5ff', borderRadius: '8px', padding: '15px', textAlign: 'center'}}>
+                <div style={{fontSize: '12px', color: '#7c3aed', marginBottom: '6px'}}>% Perdas</div>
+                <div style={{fontSize: '20px', fontWeight: '700', color: '#6d28d9'}}>{previewData.percentualPerdas}%</div>
+              </div>
+            </div>
+          </>
         </div>
 
         <div style={{display: 'flex', gap: '10px'}}>

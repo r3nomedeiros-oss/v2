@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Eye, Edit, Trash2, FileText, FileSpreadsheet, Filter, X } from 'lucide-react';
+import axios from 'axios';
+import { useDados } from '../contexts/DadosContext';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
@@ -10,6 +11,7 @@ const formatarKg = (valor) => {
 };
 
 function Lancamentos() {
+  const { carregarLancamentos, invalidarCache } = useDados();
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -19,27 +21,18 @@ function Lancamentos() {
   const [filtroAtivo, setFiltroAtivo] = useState(false);
 
   useEffect(() => {
-    carregarLancamentos();
+    carregarDados();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const carregarLancamentos = async (inicio = '', fim = '') => {
+  const carregarDados = async (inicio = '', fim = '') => {
     setLoading(true);
     try {
-      let url = `${API_URL}/lancamentos`;
-      const params = new URLSearchParams();
-      
-      if (inicio) params.append('data_inicio', inicio);
-      if (fim) params.append('data_fim', fim);
-      
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-      
-      const response = await axios.get(url);
-      setLancamentos(response.data);
+      const data = await carregarLancamentos(false, inicio, fim);
+      setLancamentos(data || []);
     } catch (error) {
       console.error('Erro ao carregar lançamentos:', error);
+      setLancamentos([]);
     } finally {
       setLoading(false);
     }
@@ -47,7 +40,7 @@ function Lancamentos() {
 
   const aplicarFiltro = () => {
     if (dataInicio || dataFim) {
-      carregarLancamentos(dataInicio, dataFim);
+      carregarDados(dataInicio, dataFim);
       setFiltroAtivo(true);
     }
   };
@@ -56,7 +49,7 @@ function Lancamentos() {
     setDataInicio('');
     setDataFim('');
     setFiltroAtivo(false);
-    carregarLancamentos();
+    carregarDados();
   };
 
   const deletarLancamento = async (id) => {
@@ -67,7 +60,8 @@ function Lancamentos() {
     try {
       await axios.delete(`${API_URL}/lancamentos/${id}`);
       alert('Lançamento excluído com sucesso!');
-      carregarLancamentos(dataInicio, dataFim);
+      invalidarCache(); // Invalidar cache após deletar
+      carregarDados(dataInicio, dataFim);
     } catch (error) {
       console.error('Erro ao excluir lançamento:', error);
       alert('Erro ao excluir lançamento');

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { TrendingUp, AlertCircle, Calendar, Package } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
+import { useDados } from '../contexts/DadosContext';
 
 // Função para formatar números
 const formatarKg = (valor) => {
@@ -11,21 +9,25 @@ const formatarKg = (valor) => {
 };
 
 function Dashboard() {
-  const [stats, setStats] = useState(null);
-  const [lancamentos, setLancamentos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { lancamentos, stats, carregarLancamentos, carregarStats, loading } = useDados();
+  const [localLoading, setLocalLoading] = useState(true);
+  const [localStats, setLocalStats] = useState(null);
+  const [localLancamentos, setLocalLancamentos] = useState([]);
 
   useEffect(() => {
     carregarDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const carregarDashboard = async () => {
+    setLocalLoading(true);
     try {
-      const [statsResponse, lancamentosResponse] = await Promise.all([
-        axios.get(`${API_URL}/relatorios?periodo=mensal`),
-        axios.get(`${API_URL}/lancamentos`)
+      const [statsData, lancamentosData] = await Promise.all([
+        carregarStats(false, 'mensal'),
+        carregarLancamentos()
       ]);
-      setStats(statsResponse.data);
+      
+      setLocalStats(statsData);
       
       // Últimos 7 dias (incluindo hoje)
       const hoje = new Date();
@@ -34,16 +36,16 @@ function Dashboard() {
       seteDiasAtras.setDate(hoje.getDate() - 6);
       seteDiasAtras.setHours(0, 0, 0, 0);
       
-      const ultimos7Dias = lancamentosResponse.data.filter(lanc => {
+      const ultimos7Dias = (lancamentosData || []).filter(lanc => {
         const dataLanc = new Date(lanc.data + 'T12:00:00');
         return dataLanc >= seteDiasAtras && dataLanc <= hoje;
       });
       
-      setLancamentos(ultimos7Dias);
+      setLocalLancamentos(ultimos7Dias);
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
@@ -68,7 +70,7 @@ function Dashboard() {
     }
     
     // Preencher com dados dos lançamentos
-    lancamentos.forEach(lanc => {
+    localLancamentos.forEach(lanc => {
       const diaIndex = dias.findIndex(d => d.dataOriginal === lanc.data);
       if (diaIndex !== -1) {
         dias[diaIndex].producao += parseFloat(lanc.producao_total) || 0;
@@ -123,7 +125,7 @@ function Dashboard() {
     return null;
   };
 
-  if (loading) {
+  if (localLoading) {
     return <div className="loading">Carregando...</div>;
   }
 
@@ -139,16 +141,16 @@ function Dashboard() {
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Produção Total</h3>
-          <div className="value">{formatarKg(stats?.producao_total || 0)} kg</div>
+          <div className="value">{formatarKg(localStats?.producao_total || 0)} kg</div>
           <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
             <Package size={16} style={{display: 'inline', marginRight: '5px'}} />
-            {stats?.dias_produzidos || 0} dias produzidos
+            {localStats?.dias_produzidos || 0} dias produzidos
           </div>
         </div>
 
         <div className="stat-card">
           <h3>Média Diária</h3>
-          <div className="value">{formatarKg(stats?.media_diaria || 0)} kg</div>
+          <div className="value">{formatarKg(localStats?.media_diaria || 0)} kg</div>
           <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
             <TrendingUp size={16} style={{display: 'inline', marginRight: '5px'}} />
             Por dia produzido
@@ -157,10 +159,10 @@ function Dashboard() {
 
         <div className="stat-card">
           <h3>Perdas Totais</h3>
-          <div className="value">{formatarKg(stats?.perdas_total || 0)} kg</div>
+          <div className="value">{formatarKg(localStats?.perdas_total || 0)} kg</div>
           <div className="subtitle" style={{fontSize: '15px', fontWeight: '600', color: '#4a5568'}}>
             <AlertCircle size={16} style={{display: 'inline', marginRight: '5px'}} />
-            {stats?.percentual_perdas || 0}% da produção
+            {localStats?.percentual_perdas || 0}% da produção
           </div>
         </div>
 
@@ -263,30 +265,30 @@ function Dashboard() {
           <div style={{padding: '20px', background: '#f7fafc', borderRadius: '8px'}}>
             <h3 style={{color: '#667eea', marginBottom: '10px'}}>Turno A</h3>
             <div style={{fontSize: '24px', fontWeight: '700', marginBottom: '5px'}}>
-              {formatarKg(stats?.por_turno?.A?.producao || 0)} kg
+              {formatarKg(localStats?.por_turno?.A?.producao || 0)} kg
             </div>
             <div style={{fontSize: '14px', color: '#718096'}}>
-              Perdas: {formatarKg(stats?.por_turno?.A?.perdas || 0)} kg
+              Perdas: {formatarKg(localStats?.por_turno?.A?.perdas || 0)} kg
             </div>
           </div>
 
           <div style={{padding: '20px', background: '#f7fafc', borderRadius: '8px'}}>
             <h3 style={{color: '#667eea', marginBottom: '10px'}}>Turno B</h3>
             <div style={{fontSize: '24px', fontWeight: '700', marginBottom: '5px'}}>
-              {formatarKg(stats?.por_turno?.B?.producao || 0)} kg
+              {formatarKg(localStats?.por_turno?.B?.producao || 0)} kg
             </div>
             <div style={{fontSize: '14px', color: '#718096'}}>
-              Perdas: {formatarKg(stats?.por_turno?.B?.perdas || 0)} kg
+              Perdas: {formatarKg(localStats?.por_turno?.B?.perdas || 0)} kg
             </div>
           </div>
 
           <div style={{padding: '20px', background: '#f7fafc', borderRadius: '8px'}}>
             <h3 style={{color: '#667eea', marginBottom: '10px'}}>Administrativo</h3>
             <div style={{fontSize: '24px', fontWeight: '700', marginBottom: '5px'}}>
-              {formatarKg(stats?.por_turno?.Administrativo?.producao || 0)} kg
+              {formatarKg(localStats?.por_turno?.Administrativo?.producao || 0)} kg
             </div>
             <div style={{fontSize: '14px', color: '#718096'}}>
-              Perdas: {formatarKg(stats?.por_turno?.Administrativo?.perdas || 0)} kg
+              Perdas: {formatarKg(localStats?.por_turno?.Administrativo?.perdas || 0)} kg
             </div>
           </div>
         </div>

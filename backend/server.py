@@ -205,13 +205,27 @@ async def get_lancamentos(data_inicio: Optional[str] = None, data_fim: Optional[
             
         response = query.order("data", desc=True).order("hora", desc=True).execute()
         
+        if not response.data:
+            return []
+        
+        # Buscar TODOS os itens de uma vez (otimização N+1)
+        lancamento_ids = [lanc['id'] for lanc in response.data]
+        all_itens_response = supabase.table("itens_producao").select("*").in_("lancamento_id", lancamento_ids).execute()
+        
+        # Agrupar itens por lancamento_id
+        itens_por_lancamento = {}
+        for item in (all_itens_response.data or []):
+            lanc_id = item['lancamento_id']
+            if lanc_id not in itens_por_lancamento:
+                itens_por_lancamento[lanc_id] = []
+            itens_por_lancamento[lanc_id].append(item)
+        
         lancamentos = []
         for lanc in response.data:
-            # Buscar itens do lançamento
-            itens_response = supabase.table("itens_producao").select("*").eq("lancamento_id", lanc['id']).execute()
-            lanc['itens'] = itens_response.data if itens_response.data else []
+            # Usar itens já buscados
+            lanc['itens'] = itens_por_lancamento.get(lanc['id'], [])
             
-            # Sempre calcular producao_total a partir dos itens (mais confiável)
+            # Calcular producao_total a partir dos itens
             lanc['producao_total'] = sum(item.get('producao_kg', 0) or 0 for item in lanc['itens'])
             lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
             total = lanc['producao_total'] + lanc['perdas_total']
@@ -384,11 +398,39 @@ async def get_relatorios(periodo: str = "mensal", data_inicio: Optional[str] = N
         response = supabase.table("lancamentos").select("*").gte("data", str(inicio)).lte("data", str(fim)).execute()
         lancamentos = response.data
         
-        # Calcular campos faltantes e buscar itens
+        if not lancamentos:
+            # Retornar dados vazios se não houver lançamentos
+            return {
+                "producao_total": 0,
+                "perdas_total": 0,
+                "percentual_perdas": 0,
+                "media_diaria": 0,
+                "dias_produzidos": 0,
+                "por_turno": {
+                    'A': {"producao": 0, "perdas": 0, "percentual_perdas": 0, "media_diaria": 0, "dias_produzidos": 0},
+                    'B': {"producao": 0, "perdas": 0, "percentual_perdas": 0, "media_diaria": 0, "dias_produzidos": 0},
+                    'Administrativo': {"producao": 0, "perdas": 0, "percentual_perdas": 0, "media_diaria": 0, "dias_produzidos": 0}
+                },
+                "itens_por_formato_cor": []
+            }
+        
+        # Buscar TODOS os itens de uma vez (otimização N+1)
+        lancamento_ids = [lanc['id'] for lanc in lancamentos]
+        all_itens_response = supabase.table("itens_producao").select("*").in_("lancamento_id", lancamento_ids).execute()
+        all_itens = all_itens_response.data or []
+        
+        # Agrupar itens por lancamento_id
+        itens_por_lancamento = {}
+        for item in all_itens:
+            lanc_id = item['lancamento_id']
+            if lanc_id not in itens_por_lancamento:
+                itens_por_lancamento[lanc_id] = []
+            itens_por_lancamento[lanc_id].append(item)
+        
+        # Calcular campos faltantes e agrupar itens
         itens_por_formato_cor = {}
         for lanc in lancamentos:
-            itens_response = supabase.table("itens_producao").select("*").eq("lancamento_id", lanc['id']).execute()
-            itens = itens_response.data if itens_response.data else []
+            itens = itens_por_lancamento.get(lanc['id'], [])
             
             # Calcular producao_total e perdas_total se não existirem
             if lanc.get('producao_total') is None or lanc.get('producao_total') == 0:

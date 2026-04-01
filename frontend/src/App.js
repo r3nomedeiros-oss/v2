@@ -158,6 +158,16 @@ function AppContent() {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
+    
+    // Remover loader inicial do HTML
+    const initialLoader = document.getElementById('initial-loader');
+    if (initialLoader) {
+      initialLoader.style.opacity = '0';
+      initialLoader.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        initialLoader.remove();
+      }, 300);
+    }
   }, []);
 
   const handleLogin = (userData) => {

@@ -82,17 +82,7 @@
             }
         </script>
         <style>
-            /* Estilo inicial para evitar flash branco */
-            html, body {
-                margin: 0;
-                padding: 0;
-                background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
-                min-height: 100vh;
-            }
-            #root {
-                min-height: 100vh;
-            }
-            /* Loading spinner inicial */
+            /* Loading spinner inicial - só aparece enquanto React carrega */
             .initial-loader {
                 position: fixed;
                 top: 0;
@@ -135,7 +125,7 @@
             }
         </style>
     </head>
-    <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); min-height: 100vh;">
+    <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root">
             <!-- Loader inicial enquanto React carrega -->

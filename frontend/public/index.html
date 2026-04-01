@@ -81,64 +81,10 @@
                 document.head.appendChild(tailwindScript);
             }
         </script>
-        <style>
-            /* Loading spinner inicial - só aparece enquanto React carrega */
-            .initial-loader {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-                z-index: 9999;
-            }
-            .initial-loader-logo {
-                width: 80px;
-                height: 80px;
-                background: rgba(255,255,255,0.2);
-                border-radius: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-            .initial-loader-logo svg {
-                width: 50px;
-                height: 50px;
-                fill: white;
-            }
-            .initial-loader-text {
-                color: white;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                font-size: 24px;
-                font-weight: 700;
-            }
-            .initial-loader-subtext {
-                color: rgba(255,255,255,0.8);
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                font-size: 14px;
-                margin-top: 8px;
-            }
-        </style>
     </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div id="root">
-            <!-- Loader inicial enquanto React carrega -->
-            <div class="initial-loader" id="initial-loader">
-                <div class="initial-loader-logo">
-                    <svg viewBox="0 0 24 24" fill="white">
-                        <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.55l7 3.5v7.4l-7-3.5v-7.4zm9 10.9v-7.4l7-3.5v7.4l-7 3.5z"/>
-                    </svg>
-                </div>
-                <div class="initial-loader-text">PolyTrack</div>
-                <div class="initial-loader-subtext">Carregando sistema...</div>
-            </div>
-        </div>
+        <div id="root"></div>
         <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

@@ -101,8 +101,8 @@ function NovoLancamento() {
     const orelha = parseFloat(lancamento.orelha_kg) || 0;
     const aparas = parseFloat(lancamento.aparas_kg) || 0;
     const perdasTotal = orelha + aparas;
-    const totalGeral = producaoTotal + perdasTotal;
-    const percentualPerdas = totalGeral > 0 ? ((perdasTotal / totalGeral) * 100).toFixed(2) : 0;
+    // Fórmula correta: Perdas / Produção * 100
+    const percentualPerdas = producaoTotal > 0 ? ((perdasTotal / producaoTotal) * 100).toFixed(2) : 0;
     
     return {
       producaoTotal: producaoTotal.toFixed(2),

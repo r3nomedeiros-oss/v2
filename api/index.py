@@ -105,8 +105,8 @@ def criar_lancamento():
         itens = data.get('itens', [])
         producao_total = sum(float(item.get('producao_kg', 0) or 0) for item in itens)
         perdas_total = float(data.get('orelha_kg', 0) or 0) + float(data.get('aparas_kg', 0) or 0)
-        total = producao_total + perdas_total
-        percentual_perdas = round((perdas_total / total * 100), 2) if total > 0 else 0
+        # Fórmula correta: Perdas / Produção * 100
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         
         lancamento = {
             "id": lancamento_id,
@@ -183,9 +183,8 @@ def listar_lancamentos():
             # Calcular perdas
             perdas_total = float(lanc.get('orelha_kg', 0) or 0) + float(lanc.get('aparas_kg', 0) or 0)
             
-            # Calcular percentual
-            total = producao_total + perdas_total
-            percentual_perdas = round((perdas_total / total * 100), 2) if total > 0 else 0
+            # Calcular percentual - Fórmula correta: Perdas / Produção * 100
+            percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
             
             result.append({
                 **lanc,
@@ -215,8 +214,8 @@ def obter_lancamento(lancamento_id):
         # Sempre calcular producao_total a partir dos itens (mais confiável)
         lancamento['producao_total'] = sum(float(item.get('producao_kg', 0) or 0) for item in lancamento['itens'])
         lancamento['perdas_total'] = float(lancamento.get('orelha_kg', 0) or 0) + float(lancamento.get('aparas_kg', 0) or 0)
-        total = lancamento['producao_total'] + lancamento['perdas_total']
-        lancamento['percentual_perdas'] = round((lancamento['perdas_total'] / total * 100), 2) if total > 0 else 0
+        # Fórmula correta: Perdas / Produção * 100
+        lancamento['percentual_perdas'] = round((lancamento['perdas_total'] / lancamento['producao_total'] * 100), 2) if lancamento['producao_total'] > 0 else 0
         
         return jsonify(lancamento)
     
@@ -232,8 +231,8 @@ def atualizar_lancamento(lancamento_id):
         itens = data.get('itens', [])
         producao_total = sum(float(item.get('producao_kg', 0) or 0) for item in itens)
         perdas_total = float(data.get('orelha_kg', 0) or 0) + float(data.get('aparas_kg', 0) or 0)
-        total = producao_total + perdas_total
-        percentual_perdas = round((perdas_total / total * 100), 2) if total > 0 else 0
+        # Fórmula correta: Perdas / Produção * 100
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         
         lancamento_update = {
             "data": data['data'],
@@ -364,8 +363,8 @@ def gerar_relatorio():
         dias_unicos = set(l['data'] for l in lancamentos)
         dias_produzidos = len(dias_unicos)
         
-        total_geral = producao_total + perdas_total
-        percentual_perdas = round((perdas_total / total_geral * 100), 2) if total_geral > 0 else 0
+        # Fórmula correta: Perdas / Produção * 100
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         media_diaria = round(producao_total / dias_produzidos, 2) if dias_produzidos > 0 else 0
         
         # Por turno
@@ -386,11 +385,11 @@ def gerar_relatorio():
         por_turno_formatado = {}
         for turno, dados in por_turno.items():
             dias_turno = len(dados['dias'])
-            total_turno = dados['producao'] + dados['perdas']
+            # Fórmula correta: Perdas / Produção * 100
             por_turno_formatado[turno] = {
                 "producao": round(dados['producao'], 2),
                 "perdas": round(dados['perdas'], 2),
-                "percentual_perdas": round((dados['perdas'] / total_turno * 100), 2) if total_turno > 0 else 0,
+                "percentual_perdas": round((dados['perdas'] / dados['producao'] * 100), 2) if dados['producao'] > 0 else 0,
                 "media_diaria": round(dados['producao'] / dias_turno, 2) if dias_turno > 0 else 0,
                 "dias_produzidos": dias_turno
             }

@@ -5,8 +5,8 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL || '') + '/api';
 
 const DadosContext = createContext();
 
-// Tempo de cache: 2 minutos
-const CACHE_DURATION = 2 * 60 * 1000;
+// Tempo de cache: 10 segundos (reduzido para melhor responsividade)
+const CACHE_DURATION = 10 * 1000;
 
 export function DadosProvider({ children }) {
   const [lancamentos, setLancamentos] = useState([]);

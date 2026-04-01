@@ -271,10 +271,22 @@ def atualizar_lancamento(lancamento_id):
 @app.route('/api/lancamentos/<lancamento_id>', methods=['DELETE'])
 def deletar_lancamento(lancamento_id):
     try:
-        # Deletar itens primeiro
+        # Verificar se o lançamento existe
+        check = supabase.table("lancamentos").select("id").eq("id", lancamento_id).execute()
+        if not check.data:
+            return jsonify({"error": "Lançamento não encontrado"}), 404
+        
+        # Deletar itens primeiro (com verificação)
         supabase.table("itens_producao").delete().eq("lancamento_id", lancamento_id).execute()
+        
         # Deletar lançamento
-        supabase.table("lancamentos").delete().eq("id", lancamento_id).execute()
+        result = supabase.table("lancamentos").delete().eq("id", lancamento_id).execute()
+        
+        # Verificar se foi deletado
+        verify = supabase.table("lancamentos").select("id").eq("id", lancamento_id).execute()
+        if verify.data:
+            return jsonify({"error": "Falha ao excluir lançamento"}), 500
+        
         return jsonify({"success": True, "message": "Lançamento excluído com sucesso"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

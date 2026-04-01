@@ -58,13 +58,24 @@ function Lancamentos() {
     }
 
     try {
-      await axios.delete(`${API_URL}/lancamentos/${id}`);
-      alert('Lançamento excluído com sucesso!');
-      invalidarCache(); // Invalidar cache após deletar
-      carregarDados(dataInicio, dataFim);
+      setLoading(true);
+      const response = await axios.delete(`${API_URL}/lancamentos/${id}`);
+      
+      if (response.data.success || response.data.message) {
+        // Remover imediatamente da lista local
+        setLancamentos(prev => prev.filter(l => l.id !== id));
+        invalidarCache();
+        alert('Lançamento excluído com sucesso!');
+      } else {
+        throw new Error('Falha ao excluir');
+      }
     } catch (error) {
       console.error('Erro ao excluir lançamento:', error);
-      alert('Erro ao excluir lançamento');
+      alert('Erro ao excluir lançamento. Tente novamente.');
+      // Recarregar para garantir estado correto
+      carregarDados(dataInicio, dataFim);
+    } finally {
+      setLoading(false);
     }
   };
 

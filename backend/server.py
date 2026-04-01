@@ -359,11 +359,25 @@ async def update_lancamento(lancamento_id: str, lancamento: LancamentoCreate):
 @api_router.delete("/lancamentos/{lancamento_id}")
 async def delete_lancamento(lancamento_id: str):
     try:
+        # Verificar se o lançamento existe
+        check = supabase.table("lancamentos").select("id").eq("id", lancamento_id).execute()
+        if not check.data:
+            raise HTTPException(status_code=404, detail="Lançamento não encontrado")
+        
         # Deletar itens primeiro
         supabase.table("itens_producao").delete().eq("lancamento_id", lancamento_id).execute()
+        
         # Deletar lançamento
         supabase.table("lancamentos").delete().eq("id", lancamento_id).execute()
+        
+        # Verificar se foi deletado
+        verify = supabase.table("lancamentos").select("id").eq("id", lancamento_id).execute()
+        if verify.data:
+            raise HTTPException(status_code=500, detail="Falha ao excluir lançamento")
+        
         return {"message": "Lançamento excluído com sucesso"}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error deleting lancamento: {e}")
         raise HTTPException(status_code=500, detail=str(e))

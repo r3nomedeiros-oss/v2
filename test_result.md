@@ -134,6 +134,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Filtros data_inicio e data_fim implementados"
+      - working: true
+        agent: "main"
+        comment: "Fórmula % Perdas corrigida para (Perdas/Produção*100)"
 
   - task: "API de Relatórios com itens por formato/cor"
     implemented: true
@@ -183,6 +186,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Gráfico corrigido com 3 linhas: Produção, Perdas, % Perdas"
+      - working: true
+        agent: "main"
+        comment: "Fórmula % Perdas corrigida para (Perdas/Produção*100)"
 
   - task: "Relatórios com Produção por Itens"
     implemented: true
@@ -214,3 +220,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Backend implementado com todas as APIs necessárias. Testar endpoints de variáveis, lançamentos e relatórios."
+  - agent: "main"
+    message: "CORREÇÃO APLICADA: Fórmula de % Perdas corrigida de (Perdas/(Produção+Perdas)*100) para (Perdas/Produção*100) em todos os endpoints (lancamentos, relatorios) e no Dashboard frontend."

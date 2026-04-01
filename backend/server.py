@@ -228,8 +228,7 @@ async def get_lancamentos(data_inicio: Optional[str] = None, data_fim: Optional[
             # Calcular producao_total a partir dos itens
             lanc['producao_total'] = sum(item.get('producao_kg', 0) or 0 for item in lanc['itens'])
             lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
-            total = lanc['producao_total'] + lanc['perdas_total']
-            lanc['percentual_perdas'] = round((lanc['perdas_total'] / total * 100), 2) if total > 0 else 0
+            lanc['percentual_perdas'] = round((lanc['perdas_total'] / lanc['producao_total'] * 100), 2) if lanc['producao_total'] > 0 else 0
             
             lancamentos.append(lanc)
         
@@ -255,8 +254,7 @@ async def get_lancamento(lancamento_id: str):
         # Sempre calcular producao_total a partir dos itens (mais confiável)
         lanc['producao_total'] = sum(item.get('producao_kg', 0) or 0 for item in lanc['itens'])
         lanc['perdas_total'] = (lanc.get('orelha_kg', 0) or 0) + (lanc.get('aparas_kg', 0) or 0)
-        total = lanc['producao_total'] + lanc['perdas_total']
-        lanc['percentual_perdas'] = round((lanc['perdas_total'] / total * 100), 2) if total > 0 else 0
+        lanc['percentual_perdas'] = round((lanc['perdas_total'] / lanc['producao_total'] * 100), 2) if lanc['producao_total'] > 0 else 0
         
         return lanc
     except HTTPException:
@@ -273,7 +271,7 @@ async def create_lancamento(lancamento: LancamentoCreate):
         # Calcular totais
         producao_total = sum(item.producao_kg for item in lancamento.itens)
         perdas_total = lancamento.orelha_kg + lancamento.aparas_kg
-        percentual_perdas = round((perdas_total / (producao_total + perdas_total) * 100), 2) if (producao_total + perdas_total) > 0 else 0
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         
         doc = {
             "id": lancamento_id,
@@ -320,7 +318,7 @@ async def update_lancamento(lancamento_id: str, lancamento: LancamentoCreate):
         # Calcular totais
         producao_total = sum(item.producao_kg for item in lancamento.itens)
         perdas_total = lancamento.orelha_kg + lancamento.aparas_kg
-        percentual_perdas = round((perdas_total / (producao_total + perdas_total) * 100), 2) if (producao_total + perdas_total) > 0 else 0
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         
         doc = {
             "data": lancamento.data,
@@ -460,7 +458,7 @@ async def get_relatorios(periodo: str = "mensal", data_inicio: Optional[str] = N
         dias_unicos = set(l['data'] for l in lancamentos)
         dias_produzidos = len(dias_unicos)
         
-        percentual_perdas = round((perdas_total / (producao_total + perdas_total) * 100), 2) if (producao_total + perdas_total) > 0 else 0
+        percentual_perdas = round((perdas_total / producao_total * 100), 2) if producao_total > 0 else 0
         media_diaria = round(producao_total / dias_produzidos, 2) if dias_produzidos > 0 else 0
         
         # Por turno
@@ -481,11 +479,10 @@ async def get_relatorios(periodo: str = "mensal", data_inicio: Optional[str] = N
         por_turno_formatado = {}
         for turno, dados in por_turno.items():
             dias_turno = len(dados['dias'])
-            total_turno = dados['producao'] + dados['perdas']
             por_turno_formatado[turno] = {
                 "producao": round(dados['producao'], 2),
                 "perdas": round(dados['perdas'], 2),
-                "percentual_perdas": round((dados['perdas'] / total_turno * 100), 2) if total_turno > 0 else 0,
+                "percentual_perdas": round((dados['perdas'] / dados['producao'] * 100), 2) if dados['producao'] > 0 else 0,
                 "media_diaria": round(dados['producao'] / dias_turno, 2) if dias_turno > 0 else 0,
                 "dias_produzidos": dias_turno
             }

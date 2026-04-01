@@ -80,8 +80,7 @@ function Dashboard() {
     
     // Calcular percentual de perdas para cada dia
     dias.forEach(dia => {
-      const total = dia.producao + dia.perdas;
-      dia.percentualPerdas = total > 0 ? parseFloat(((dia.perdas / total) * 100).toFixed(1)) : 0;
+      dia.percentualPerdas = dia.producao > 0 ? parseFloat(((dia.perdas / dia.producao) * 100).toFixed(1)) : 0;
     });
     
     return dias;

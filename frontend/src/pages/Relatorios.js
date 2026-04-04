@@ -318,10 +318,10 @@ function Relatorios() {
                     <table>
                       <thead>
                         <tr style={{borderBottom: '2px solid #e5e7eb'}}>
-                          <th style={{fontWeight: '600', color: '#6b7280', padding: '15px 12px', fontSize: '13px', textTransform: 'uppercase'}}>FORMATO</th>
-                          <th style={{fontWeight: '600', color: '#6b7280', padding: '15px 12px', fontSize: '13px', textTransform: 'uppercase'}}>COR</th>
-                          <th style={{fontWeight: '600', color: '#6b7280', padding: '15px 12px', fontSize: '13px', textTransform: 'uppercase'}}>TOTAL PRODUZIDO (KG)</th>
-                          <th style={{fontWeight: '600', color: '#6b7280', padding: '15px 12px', fontSize: '13px', textTransform: 'uppercase', width: '35%'}}>% DA PRODUÇÃO TOTAL</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>FORMATO</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>COR</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>TOTAL PRODUZIDO (KG)</th>
+                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>% DA PRODUÇÃO TOTAL</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -331,61 +331,44 @@ function Relatorios() {
                             : 0;
                           return (
                             <tr key={index} style={{borderBottom: '1px solid #f3f4f6'}}>
-                              <td style={{padding: '25px 12px', fontWeight: '500', color: '#111827', fontSize: '15px'}}>{item.formato}</td>
-                              <td style={{padding: '25px 12px'}}>
+                              <td style={{padding: '18px 12px', fontWeight: '600', color: '#111827'}}>{item.formato}</td>
+                              <td style={{padding: '18px 12px'}}>
                                 <span style={{
                                   background: '#f3f4f6',
                                   color: '#374151',
-                                  padding: '6px 16px',
+                                  padding: '4px 12px',
                                   borderRadius: '4px',
-                                  fontSize: '14px',
+                                  fontSize: '13px',
                                   fontWeight: '500'
                                 }}>
                                   {item.cor}
                                 </span>
                               </td>
-                              <td style={{padding: '25px 12px', fontWeight: '500', color: '#111827', fontSize: '15px'}}>
+                              <td style={{padding: '18px 12px', fontWeight: '600', color: '#111827'}}>
                                 {formatarKg(item.producao_total)} kg
                               </td>
-                              <td style={{padding: '25px 12px'}}>
-                                <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+                              <td style={{padding: '18px 12px'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                                   <div style={{
                                     flex: 1,
-                                    height: '10px',
+                                    height: '12px',
                                     background: '#e5e7eb',
-                                    borderRadius: '10px',
-                                    overflow: 'hidden',
-                                    position: 'relative'
+                                    borderRadius: '6px',
+                                    overflow: 'hidden'
                                   }}>
                                     <div style={{
-                                      position: 'absolute',
-                                      left: 0,
-                                      top: 0,
                                       width: `${Math.min(percentual, 100)}%`,
                                       height: '100%',
-                                      background: '#22c55e',
-                                      borderRadius: '10px',
-                                      display: 'flex',
-                                      alignItems: 'center'
-                                    }}>
-                                      <div style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        background: '#16a34a',
-                                        borderRadius: '50%',
-                                        position: 'absolute',
-                                        right: '-3px',
-                                        border: '2px solid white',
-                                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                                      }}></div>
-                                    </div>
+                                      background: '#16a34a',
+                                      borderRadius: '6px',
+                                      transition: 'width 0.3s ease'
+                                    }}></div>
                                   </div>
                                   <span style={{
                                     minWidth: '50px',
                                     textAlign: 'right',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    fontSize: '14px'
+                                    fontWeight: '600',
+                                    color: '#374151'
                                   }}>
                                     {percentual}%
                                   </span>

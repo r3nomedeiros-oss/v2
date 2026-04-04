@@ -11,7 +11,7 @@ const formatarKg = (valor) => {
 };
 
 function Lancamentos() {
-  const { carregarLancamentos, invalidarCache } = useDados();
+  const { carregarLancamentos, recarregarDados } = useDados();
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -63,7 +63,11 @@ function Lancamentos() {
 
     try {
       await axios.delete(`${API_URL}/lancamentos/${id}`);
-      invalidarCache();
+      // Recarregar dados do servidor para garantir sincronização
+      if (!filtroAtivo) {
+        const dadosAtualizados = await recarregarDados();
+        setLancamentos(dadosAtualizados);
+      }
     } catch (error) {
       console.error('Erro ao excluir lançamento:', error);
       // Restaurar lista se falhar

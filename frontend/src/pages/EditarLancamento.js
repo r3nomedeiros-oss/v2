@@ -15,7 +15,7 @@ function EditarLancamento() {
   
   // Usar cache de variáveis
   const { turnos, formatos, cores, carregarVariaveis } = useVariaveis();
-  const { invalidarCache } = useDados();
+  const { recarregarDados } = useDados();
   
   const [lancamento, setLancamento] = useState({
     data: '',
@@ -73,7 +73,7 @@ function EditarLancamento() {
     
     try {
       await axios.put(`${API_URL}/lancamentos/${id}`, lancamento);
-      invalidarCache(); // Invalidar cache após editar
+      await recarregarDados(); // Recarregar dados imediatamente após editar
       alert('Lançamento atualizado com sucesso!');
       navigate('/lancamentos');
     } catch (error) {

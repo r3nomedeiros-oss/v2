@@ -13,7 +13,7 @@ function NovoLancamento() {
   
   // Usar cache de variáveis
   const { turnos, formatos, cores, carregarVariaveis, loading: loadingVars } = useVariaveis();
-  const { invalidarCache } = useDados();
+  const { recarregarDados } = useDados();
   
   const [lancamento, setLancamento] = useState({
     data: new Date().toISOString().split('T')[0],
@@ -81,7 +81,7 @@ function NovoLancamento() {
     
     try {
       await axios.post(`${API_URL}/lancamentos`, lancamento);
-      invalidarCache(); // Invalidar cache após criar
+      await recarregarDados(); // Recarregar dados imediatamente após criar
       alert('Lançamento criado com sucesso!');
       navigate('/lancamentos');
     } catch (error) {

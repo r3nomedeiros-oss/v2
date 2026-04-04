@@ -318,10 +318,10 @@ function Relatorios() {
                     <table>
                       <thead>
                         <tr style={{borderBottom: '2px solid #e5e7eb'}}>
-                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>FORMATO</th>
-                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>COR</th>
-                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>TOTAL PRODUZIDO (KG)</th>
-                          <th style={{fontWeight: '600', color: '#374151', padding: '15px 12px'}}>% DA PRODUÇÃO TOTAL</th>
+                          <th style={{fontWeight: '700', color: '#374151', padding: '12px'}}>FORMATO</th>
+                          <th style={{fontWeight: '700', color: '#374151', padding: '12px'}}>COR</th>
+                          <th style={{fontWeight: '700', color: '#374151', padding: '12px'}}>TOTAL PRODUZIDO (KG)</th>
+                          <th style={{fontWeight: '700', color: '#374151', padding: '12px'}}>% DA PRODUÇÃO TOTAL</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -331,23 +331,23 @@ function Relatorios() {
                             : 0;
                           return (
                             <tr key={index} style={{borderBottom: '1px solid #f3f4f6'}}>
-                              <td style={{padding: '18px 12px', fontWeight: '600', color: '#111827'}}>{item.formato}</td>
-                              <td style={{padding: '18px 12px'}}>
+                              <td style={{padding: '14px 12px', fontWeight: '600', color: '#111827'}}>{item.formato}</td>
+                              <td style={{padding: '14px 12px'}}>
                                 <span style={{
                                   background: '#f3f4f6',
                                   color: '#374151',
                                   padding: '4px 12px',
                                   borderRadius: '4px',
                                   fontSize: '13px',
-                                  fontWeight: '500'
+                                  fontWeight: '600'
                                 }}>
                                   {item.cor}
                                 </span>
                               </td>
-                              <td style={{padding: '18px 12px', fontWeight: '600', color: '#111827'}}>
+                              <td style={{padding: '14px 12px', fontWeight: '600', color: '#111827'}}>
                                 {formatarKg(item.producao_total)} kg
                               </td>
-                              <td style={{padding: '18px 12px'}}>
+                              <td style={{padding: '14px 12px'}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                                   <div style={{
                                     flex: 1,

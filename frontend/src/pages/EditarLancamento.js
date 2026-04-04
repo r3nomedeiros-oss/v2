@@ -70,17 +70,14 @@ function EditarLancamento() {
     setLoading(true);
     
     try {
-      // Atualizar lançamento e receber o objeto atualizado
-      const response = await axios.put(`${API_URL}/lancamentos/${id}`, lancamento);
-      const lancamentoAtualizado = response.data;
+      // Atualizar lançamento
+      await axios.put(`${API_URL}/lancamentos/${id}`, lancamento);
       
       alert('Lançamento atualizado com sucesso!');
-      // Navegar passando o lançamento atualizado no state
-      navigate('/lancamentos', { state: { lancamentoAtualizado } });
+      navigate('/lancamentos');
     } catch (error) {
       console.error('Erro ao atualizar lançamento:', error);
       alert('Erro ao atualizar lançamento');
-    } finally {
       setLoading(false);
     }
   };

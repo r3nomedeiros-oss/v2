@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Eye, Edit, Trash2, FileText, FileSpreadsheet, Filter, X } from 'lucide-react';
 import axios from 'axios';
 
@@ -10,7 +10,6 @@ const formatarKg = (valor) => {
 };
 
 function Lancamentos() {
-  const location = useLocation();
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -29,35 +28,14 @@ function Lancamentos() {
       if (params.toString()) url += `?${params.toString()}`;
       
       const response = await axios.get(url);
-      let dados = response.data || [];
-      
-      // Se veio um novo lançamento via state, adicionar no início se não existir
-      if (location.state?.novoLancamento) {
-        const novoId = location.state.novoLancamento.id;
-        const jaExiste = dados.some(l => l.id === novoId);
-        if (!jaExiste) {
-          dados = [location.state.novoLancamento, ...dados];
-        }
-        // Limpar o state para não adicionar novamente
-        window.history.replaceState({}, document.title);
-      }
-      
-      // Se veio um lançamento atualizado via state, substituir na lista
-      if (location.state?.lancamentoAtualizado) {
-        const atualizadoId = location.state.lancamentoAtualizado.id;
-        dados = dados.map(l => l.id === atualizadoId ? location.state.lancamentoAtualizado : l);
-        // Limpar o state
-        window.history.replaceState({}, document.title);
-      }
-      
-      setLancamentos(dados);
+      setLancamentos(response.data || []);
     } catch (error) {
       console.error('Erro ao carregar lançamentos:', error);
       setLancamentos([]);
     } finally {
       setLoading(false);
     }
-  }, [location.state]);
+  }, []);
 
   useEffect(() => {
     carregarDados();
@@ -97,6 +75,7 @@ function Lancamentos() {
   };
 
   const formatarData = (data) => {
+    if (!data) return '';
     const [ano, mes, dia] = data.split('-');
     return `${dia}/${mes}/${ano}`;
   };
@@ -144,9 +123,9 @@ function Lancamentos() {
         <tr>
           <td>${formatarData(lanc.data)} ${formatarHora(lanc.hora)}</td>
           <td>${lanc.turno}</td>
-          <td>${formatarKg(lanc.producao_total)}</td>
-          <td>${formatarKg(lanc.perdas_total)}</td>
-          <td>${lanc.percentual_perdas}%</td>
+          <td>${formatarKg(lanc.producao_total || 0)}</td>
+          <td>${formatarKg(lanc.perdas_total || 0)}</td>
+          <td>${lanc.percentual_perdas || 0}%</td>
         </tr>
       `).join('')}
     </tbody>
@@ -169,7 +148,7 @@ function Lancamentos() {
   const exportarHistoricoExcel = () => {
     let csv = `Data;Hora;Turno;Produção (kg);Perdas (kg);% Perdas\n`;
     lancamentos.forEach(lanc => {
-      csv += `${formatarData(lanc.data)};${formatarHora(lanc.hora)};${lanc.turno};${formatarKg(lanc.producao_total)};${formatarKg(lanc.perdas_total)};${lanc.percentual_perdas}%\n`;
+      csv += `${formatarData(lanc.data)};${formatarHora(lanc.hora)};${lanc.turno};${formatarKg(lanc.producao_total || 0)};${formatarKg(lanc.perdas_total || 0)};${lanc.percentual_perdas || 0}%\n`;
     });
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
@@ -284,14 +263,14 @@ function Lancamentos() {
                       <span className="badge badge-success">{lanc.turno}</span>
                     </td>
                     <td style={{fontWeight: '600', color: '#48bb78'}}>
-                      {formatarKg(lanc.producao_total)} kg
+                      {formatarKg(lanc.producao_total || 0)} kg
                     </td>
                     <td style={{fontWeight: '600', color: '#f56565'}}>
-                      {formatarKg(lanc.perdas_total)} kg
+                      {formatarKg(lanc.perdas_total || 0)} kg
                     </td>
                     <td>
-                      <span className={`badge ${lanc.percentual_perdas > 10 ? 'badge-danger' : 'badge-warning'}`}>
-                        {lanc.percentual_perdas}%
+                      <span className={`badge ${(lanc.percentual_perdas || 0) > 10 ? 'badge-danger' : 'badge-warning'}`}>
+                        {lanc.percentual_perdas || 0}%
                       </span>
                     </td>
                     <td>

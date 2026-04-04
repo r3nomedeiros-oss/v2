@@ -287,12 +287,12 @@ function Relatorios() {
             >
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                 {itensExpandido ? <ChevronUp size={20} style={{color: '#16a34a'}} /> : <ChevronDown size={20} style={{color: '#16a34a'}} />}
-                <h2 style={{margin: 0, color: '#111827', fontStyle: 'italic'}}>
+                <h2 style={{margin: 0}}>
                   Produção por Itens (Formato e Cor)
                 </h2>
                 {relatorio.itens_por_formato_cor && (
                   <span style={{fontSize: '14px', fontWeight: 'normal', color: '#6b7280'}}>
-                    {relatorio.itens_por_formato_cor.length} itens
+                    ({relatorio.itens_por_formato_cor.length} itens)
                   </span>
                 )}
               </div>
@@ -307,7 +307,7 @@ function Relatorios() {
                   fontSize: '13px'
                 }}
               >
-                {itensExpandido ? 'Clique para minimizar' : 'Clique para expandir'}
+                {itensExpandido ? 'Minimizar' : 'Expandir'}
               </button>
             </div>
             

@@ -209,8 +209,20 @@ function Lancamentos() {
         <div style={{display: 'flex', gap: '10px'}}>
           <button
             onClick={() => setConsolidado(!consolidado)}
-            className="btn btn-primary"
-            style={{padding: '8px 15px', fontSize: '13px'}}
+            style={{
+              padding: '8px 15px',
+              fontSize: '13px',
+              fontWeight: 700,
+              background: '#ffffff',
+              color: '#1e40af',
+              border: '2px solid #1e40af',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.3s'
+            }}
             title={consolidado ? 'Mostrar lançamentos individuais por turno' : 'Unificar lançamentos do mesmo dia'}
           >
             {consolidado ? (
